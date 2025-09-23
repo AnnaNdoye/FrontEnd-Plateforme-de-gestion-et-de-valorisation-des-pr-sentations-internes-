@@ -4,10 +4,11 @@ const ConfirmDialog = ({isOpen, title, message, onConfirm, onCancel}) =>{
     if(!isOpen) return null;
 
     return(
-        <div className="dialog-overlay"> // Corrigé: "dialog-overlay" au lieu de "dialog-overplay"
+        <div className="dialog-overlay"> 
             <div className="dialog">
-                <h3>{title}</h3> // Supprimé l'astérisque
+                <h3>{title}</h3> // Supprimé l'astérisque *
                 <p>{message}</p>
+                
                 <div className="dialog-buttons">
                     <button onClick={onConfirm} className="btn btn-danger">
                         Confirmer
@@ -22,4 +23,3 @@ const ConfirmDialog = ({isOpen, title, message, onConfirm, onCancel}) =>{
 };
 
 export default ConfirmDialog;
-
