@@ -4,8 +4,7 @@ const DepartementForm = ({ departement, onSubmit, onCancel, isEditing }) => {
     const [formData, setFormData] = useState({
     nom: '',
     code: '',
-    description: '',
-    nombreEmployes: 0
+    description: ''
     });
     const [errors, setErrors] = useState({});
 
@@ -16,18 +15,17 @@ const DepartementForm = ({ departement, onSubmit, onCancel, isEditing }) => {
         setFormData({
         nom: '',
         code: '',
-        description: '',
-        nombreEmployes: 0
+        description: ''
         });
     }
     }, [departement]);
 
     const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-        ...prev,
-        [name]: name === 'nombreEmployes' ? parseInt(value) || 0 : value
-    }));
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     
     // Effacer l'erreur du champ modifié
     if (errors[name]) {
@@ -48,10 +46,6 @@ const DepartementForm = ({ departement, onSubmit, onCancel, isEditing }) => {
         newErrors.code = 'Le code est requis';
     } else if (formData.code.length < 2) {
         newErrors.code = 'Le code doit contenir au moins 2 caractères';
-    }
-    
-    if (formData.nombreEmployes < 0) {
-        newErrors.nombreEmployes = 'Le nombre d\'employés ne peut pas être négatif';
     }
     
     setErrors(newErrors);

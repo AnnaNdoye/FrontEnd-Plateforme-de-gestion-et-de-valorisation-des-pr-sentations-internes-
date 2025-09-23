@@ -19,7 +19,6 @@ const DepartementList = ({departements, onEdit, onDelete}) =>{
                             <th>Code</th>
                             <th>Nom</th>
                             <th>Description</th>
-                            <th>Employés</th>
                             <th>Actions</th>
                             </tr>
                         </thead>
@@ -36,9 +35,6 @@ const DepartementList = ({departements, onEdit, onDelete}) =>{
                                     <span className="description">
                                         {dept.description || 'Aucune description'}
                                     </span>
-                                </td>
-                                <td>
-                                    <span className="employes-count">{dept.nombreEmployes}</span>
                                 </td>
                                 <td>
                                     <div className="actions">
