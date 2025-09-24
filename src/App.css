@@ -63,12 +63,12 @@ body {
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: #FF5E13;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #FF8113;
 }
 
 .btn-secondary {
@@ -138,7 +138,7 @@ body {
 }
 
 .search-input:focus {
-  border-color: #007bff;
+  border-color: #FF5E13;
 }
 
 .clear-button {
@@ -170,7 +170,7 @@ body {
   padding: 10px 15px;
   background-color: #f8f9fa;
   border-radius: 5px;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #FF5E13;
 }
 
 .stats p {
@@ -231,7 +231,7 @@ body {
 }
 
 .employes-count {
-  background-color: #007bff;
+  background-color: #FF5E13;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -315,7 +315,7 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #FF5E13;
 }
 
 .form-group input.error,

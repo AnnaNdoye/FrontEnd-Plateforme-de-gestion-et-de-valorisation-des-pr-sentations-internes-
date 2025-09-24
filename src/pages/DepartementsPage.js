@@ -219,7 +219,7 @@ const DepartementsPage = () => {
                     onClick={handleAddNew} 
                     className="btn btn-primary"
                     style={{
-                        backgroundColor: '#007bff',
+                        backgroundColor: '#FF5E13', //007bff
                         color: 'white',
                         border: 'none',
                         padding: '10px 20px',
