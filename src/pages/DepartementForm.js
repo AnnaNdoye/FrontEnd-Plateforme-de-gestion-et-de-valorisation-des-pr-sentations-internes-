@@ -114,3 +114,11 @@ const DepartementForm = ({ departement, onSubmit, onCancel, isEditing }) => {
 };
 
 export default DepartementForm;
+
+
+
+
+/*
+Explication détaillé du code DepartementForm.js
+
+*/

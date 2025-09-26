@@ -61,3 +61,20 @@ const DepartementList = ({ departements, onEdit, onDelete }) => {
 };
 
 export default DepartementList;
+
+
+
+
+
+
+
+
+
+
+
+/*
+const DepartementList = ({ departements, onEdit, onDelete }) => { sert à créer un composant fonctionnel
+React nommé DepartementList qui prend en props une liste de départements (departements) et deux fonctions de 
+rappel (onEdit et onDelete) pour gérer les actions d'édition et de suppression des départements.
+
+*/

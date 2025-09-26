@@ -24,3 +24,12 @@ export const departementService = {
         params: { keyword }
     })
 };
+
+
+
+
+// Explication détaillé du code departementService.js
+// on importe le fichier api.js qui contient la configuration d'axios
+// on crée un objet departementService qui contient plusieurs méthodes pour interagir avec l'API des départements
+// chaque méthode utilise l'instance d'axios pour faire une requête HTTP vers l'API
+// test: fait une requête GET vers /departements/test pour vérifier la connexion

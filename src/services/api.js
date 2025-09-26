@@ -12,3 +12,9 @@ const api = axios.create({
 });
 
 export default api;
+
+
+// Explication détaillé du code api.js
+// on importe la librairie axios pour faire des requêtes HTTP
+//on crée la variable qui va stocké l'url de la base de l'api
+//on crée une instance d'axios avec l'url de base, le type de contenu et un timeout de 10 secondes

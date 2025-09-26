@@ -27,13 +27,14 @@ const DepartementsPage = () => {
         filterDepartements();
     }, [searchTerm, departements]);
 
+    //mot clé async est un mot clé qui retourne une promesse
     const loadDepartements = async () => {
         try {
             setLoading(true);
             console.log('Chargement des départements...');
             
-            // Test de connexion d'abord
-            await departementService.test();
+            // Test de connexion d'abord attend que l'appel departement.test finisse
+            await departementService.test(); 
             console.log('Connexion API OK');
             
             const response = await departementService.getAll();
@@ -179,6 +180,7 @@ const DepartementsPage = () => {
     useEffect(() => {
         if (successMessage) {
             const timer = setTimeout(() => setSuccessMessage(''), 3000);
+            //i suucessMessage existe, on lance un timer de 3s pour l'effacer
             return () => clearTimeout(timer);
         }
     }, [successMessage]);

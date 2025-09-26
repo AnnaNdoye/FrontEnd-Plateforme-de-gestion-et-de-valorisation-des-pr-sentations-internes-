@@ -6,7 +6,7 @@ const ConfirmDialog = ({isOpen, title, message, onConfirm, onCancel}) =>{
     return(
         <div className="dialog-overlay"> 
             <div className="dialog">
-                <h3>{title}</h3> // Supprimé l'astérisque *
+                <h3>{title}</h3>
                 <p>{message}</p>
                 
                 <div className="dialog-buttons">
