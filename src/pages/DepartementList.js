@@ -1,5 +1,3 @@
-import React from 'react';
-
 const DepartementList = ({ departements, onEdit, onDelete }) => {
     if (departements.length === 0) {
         return (

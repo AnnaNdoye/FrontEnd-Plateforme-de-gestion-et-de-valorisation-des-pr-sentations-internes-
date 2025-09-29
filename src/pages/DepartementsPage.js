@@ -5,7 +5,8 @@ import DepartementList from './DepartementList';
 import DepartementForm from './DepartementForm';
 import ConfirmDialog from './ConfirmDialog';
 
-const DepartementsPage = () => {
+const DepartementsPage = () => 
+{
     const [departements, setDepartements] = useState([]);
     const [filteredDepartements, setFilteredDepartements] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +26,7 @@ const DepartementsPage = () => {
     // Filtrer les départements quand le terme de recherche change
     useEffect(() => {
         filterDepartements();
-    }, [searchTerm, departements]);
+    }, [searchTerm, departements]); //tableau de dépendances
 
     //mot clé async est un mot clé qui retourne une promesse
     const loadDepartements = async () => {
@@ -87,28 +88,34 @@ const DepartementsPage = () => {
         }
     };
 
+    // Gérer les changements dans la barre de recherche
     const handleSearchChange = (value) => {
-        setSearchTerm(value);
+        setSearchTerm(value); 
     };
 
+    // Effacer la recherche
     const handleSearchClear = () => {
         setSearchTerm('');
     };
 
+    // Gérer l'ouverture du formulaire pour ajouter
     const handleAddNew = () => {
         setEditingDepartement(null);
         setShowForm(true);
     };
 
+    // Gérer l'ouverture du formulaire pour éditer
     const handleEdit = (departement) => {
         setEditingDepartement(departement);
         setShowForm(true);
     };
 
+    // Gérer la suppression avec confirmation
     const handleDelete = (departement) => {
         setDepartementToDelete(departement);
         setShowDeleteDialog(true);
     };
+
 
     const confirmDelete = async () => {
         try {
@@ -180,7 +187,7 @@ const DepartementsPage = () => {
     useEffect(() => {
         if (successMessage) {
             const timer = setTimeout(() => setSuccessMessage(''), 3000);
-            //i suucessMessage existe, on lance un timer de 3s pour l'effacer
+            //sucessMessage existe, on lance un timer de 3s pour l'effacer
             return () => clearTimeout(timer);
         }
     }, [successMessage]);
