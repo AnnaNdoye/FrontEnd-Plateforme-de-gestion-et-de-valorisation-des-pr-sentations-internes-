@@ -10,7 +10,7 @@ import MotDePasseOublie from "./pages/MotDePasseOublie";
 import DashboardPlateforme from "./pages/plateforme/Plateforme";
 import Dashboard from "./pages/plateforme/Dashboard";
 import Barre from "./pages/plateforme/Barre";
-
+import Recherche from "./pages/plateforme/Recherche";
 
 
 function App(){
@@ -25,6 +25,8 @@ function App(){
         <Route path="/plateforme" element={<DashboardPlateforme/>} />
         <Route path="/plateforme/dashboard" element={<Dashboard/>} />
         <Route path="/plateforme/barre" element={<Barre/>} />
+        <Route path="/plateforme/recherche" element={<Recherche/>} />
+        
         
       </Routes>
     </Router>
