@@ -6,7 +6,7 @@ import DepartementsPage from "./pages/DepartementsPage";
 import PageAccueil from "./pages/PageAccueil";
 import Connexion from "./pages/Connexion";
 import Inscription from "./pages/Inscription";
-
+import MotDePasseOublie from "./pages/MotDePasseOublie";
 
 
 
@@ -18,6 +18,8 @@ function App(){
         <Route path="/accueil" element={<PageAccueil/>} />
         <Route path="/connexion" element={<Connexion/>} />
         <Route path="/inscription" element={<Inscription/>} />
+        <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie/>} />
+        
         
         
       </Routes>
