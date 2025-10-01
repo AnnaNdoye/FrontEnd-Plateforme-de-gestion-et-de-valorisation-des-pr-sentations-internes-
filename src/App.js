@@ -13,6 +13,7 @@ import Barre from "./pages/plateforme/Barre";
 import Recherche from "./pages/plateforme/Recherche";
 import Calendrier from "./pages/plateforme/Calendrier";
 import Notification from "./pages/plateforme/Notification";
+import Profil from "./pages/plateforme/Profil";
 
 function App(){
   return(
@@ -29,10 +30,7 @@ function App(){
         <Route path="/plateforme/recherche" element={<Recherche/>} />
         <Route path="/plateforme/calendrier" element={<Calendrier/>} />
         <Route path="/plateforme/notification" element={<Notification/>} />
-        
-        
-        
-        
+        <Route path="/plateforme/profil" element={<Profil/>} />
       </Routes>
     </Router>
   );
