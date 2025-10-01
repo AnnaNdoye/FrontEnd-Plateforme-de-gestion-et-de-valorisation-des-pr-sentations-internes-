@@ -12,7 +12,7 @@ import Dashboard from "./pages/plateforme/Dashboard";
 import Barre from "./pages/plateforme/Barre";
 import Recherche from "./pages/plateforme/Recherche";
 import Calendrier from "./pages/plateforme/Calendrier";
-
+import Notification from "./pages/plateforme/Notification";
 
 function App(){
   return(
@@ -28,6 +28,8 @@ function App(){
         <Route path="/plateforme/barre" element={<Barre/>} />
         <Route path="/plateforme/recherche" element={<Recherche/>} />
         <Route path="/plateforme/calendrier" element={<Calendrier/>} />
+        <Route path="/plateforme/notification" element={<Notification/>} />
+        
         
         
         
