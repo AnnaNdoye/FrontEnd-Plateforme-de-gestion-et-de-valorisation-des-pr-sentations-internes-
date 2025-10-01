@@ -8,6 +8,7 @@ import Connexion from "./pages/Connexion";
 import Inscription from "./pages/Inscription";
 import MotDePasseOublie from "./pages/MotDePasseOublie";
 import DashboardPlateforme from "./pages/plateforme/Plateforme";
+import Dashboard from "./pages/plateforme/Dashboard";
 
 
 
@@ -21,6 +22,7 @@ function App(){
         <Route path="/inscription" element={<Inscription/>} />
         <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie/>} />
         <Route path="/plateforme" element={<DashboardPlateforme/>} />
+        <Route path="/plateforme/dashboard" element={<Dashboard/>} />
         
         
         
