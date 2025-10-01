@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar } from 'react-icons/fa';
+import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar, FaList } from 'react-icons/fa';
 import { MdDashboard } from 'react-icons/md';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -16,8 +16,8 @@ const Container = styled.div`
 `;
 
 const Sidebar = styled.div`
-    width: 280px;
-    min-width: 280px;
+    width: ${props => props.isOpen ? '280px' : '80px'};
+    min-width: ${props => props.isOpen ? '280px' : '80px'};
     background: linear-gradient(135deg, #e59847ff, #ffac13ff, #ffc013bf);
     color: white;
     padding: 2rem 1.5rem;
@@ -26,6 +26,7 @@ const Sidebar = styled.div`
     overflow-y: auto;
     position: relative;
     z-index: 10;
+    transition: width 0.3s ease;
 
   /* Style de la barre de défilement */
     &::-webkit-scrollbar {
@@ -235,6 +236,8 @@ const Barre = () => {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const [isMenuOpen, setIsMenuOpen] = useState(true);
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     const getActiveTab = () => {
     const path = location.pathname;
@@ -303,29 +306,30 @@ const handleLogoutCancel = () => {
   //tableau de bord
     return (
     <Container>
-        <Sidebar>
+        <Sidebar isOpen={isMenuOpen}>
         <LogoContainer>
             <FaLeaf />
             <h2>Presentation</h2>
+            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
         </LogoContainer>
         <NavItem active={activeTab === 'dashboard'} onClick={() => handleNavigation('/plateforme/dashboard')}>
-            <MdDashboard /> Tableau de bord
+            <MdDashboard /> {isMenuOpen && 'Tableau de bord'}
         </NavItem>
                 
         <NavItem active={activeTab === 'calendrier'} onClick={() => handleNavigation('/plateforme/calendrier')}>
-            <FaCalendar /> Calendrier
+            <FaCalendar /> {isMenuOpen && 'Calendrier'}
         </NavItem>
 
         <NavItem active={activeTab === 'notification'} onClick={() => handleNavigation('/plateforme/notification')}>
-            <FaBell /> Notifications
+            <FaBell /> {isMenuOpen && 'Notifications'}
         </NavItem>
 
         <NavItem active={activeTab === 'profil'} onClick={() => handleNavigation('/plateforme/profil')}>
-            <FaUser /> Profil
+            <FaUser /> {isMenuOpen && 'Profil'}
         </NavItem>
 
         <LogoutButton onClick={handleLogoutClick}>
-            <FaSignOutAlt /> Déconnexion
+            <FaSignOutAlt /> {isMenuOpen && 'Déconnexion'}
         </LogoutButton>
         </Sidebar>
 

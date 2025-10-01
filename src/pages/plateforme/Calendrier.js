@@ -27,8 +27,6 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `;
 
-
-
 const localizer = dateFnsLocalizer({
   format,
   parse,
@@ -45,56 +43,83 @@ const Calendrier = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({
-    title: '',
-    start: null,
-    end: null,
+    presentationDate: '',
+    startTime: '',
+    subject: '',
+    description: '',
+    status: 'Planifié',
   });
 
   // Date constraints
   const minDate = new Date(2025, 8, 30); // September 30, 2025 (months are 0-indexed)
   const maxDate = new Date(2099, 11, 31); // December 31, 2099
 
-  const handleSelectSlot = useCallback(({ start, end }) => {
+  const handleSelectSlot = useCallback(() => {
     setEventForm({
-      title: '',
-      start,
-      end,
+      presentationDate: '',
+      startTime: '',
+      subject: '',
+      description: '',
+      status: 'Planifié',
     });
     setShowEventForm(true);
   }, []);
 
   const handleSelectEvent = useCallback((event) => {
     setSelectedEvent(event);
+    // Extract date and time from event.start
+    const start = event.start;
+    const presentationDate = start ? format(start, 'yyyy-MM-dd') : '';
+    const startTime = start ? format(start, 'HH:mm') : '';
     setEventForm({
-      title: event.title,
-      start: event.start,
-      end: event.end,
+      presentationDate,
+      startTime,
+      subject: event.subject || event.title || '',
+      description: event.description || '',
+      status: event.status || 'Planifié',
     });
     setShowEventForm(true);
   }, []);
 
   const handleSaveEvent = () => {
-    if (eventForm.title && eventForm.start && eventForm.end) {
+    const { presentationDate, startTime, subject, description, status } = eventForm;
+    if (presentationDate && startTime && subject && description && status) {
+      // Combine presentationDate and startTime into a Date object
+      const start = new Date(`${presentationDate}T${startTime}`);
+      // For simplicity, set end to start + 1 hour
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+
       if (selectedEvent) {
         // Update existing event
         setEvents(events.map(evt =>
           evt.id === selectedEvent.id
-            ? { ...evt, title: eventForm.title, start: eventForm.start, end: eventForm.end }
+            ? { ...evt, title: subject, start, end, subject, description, status }
             : evt
         ));
       } else {
         // Add new event
         const newEvent = {
           id: Date.now(),
-          title: eventForm.title,
-          start: eventForm.start,
-          end: eventForm.end,
+          title: subject,
+          start,
+          end,
+          subject,
+          description,
+          status,
         };
         setEvents([...events, newEvent]);
       }
       setShowEventForm(false);
       setSelectedEvent(null);
-      setEventForm({ title: '', start: null, end: null });
+      setEventForm({
+        presentationDate: '',
+        startTime: '',
+        subject: '',
+        description: '',
+        status: 'Planifié',
+      });
+    } else {
+      alert('Veuillez remplir tous les champs du formulaire.');
     }
   };
 
@@ -103,14 +128,26 @@ const Calendrier = () => {
       setEvents(events.filter(evt => evt.id !== selectedEvent.id));
       setShowEventForm(false);
       setSelectedEvent(null);
-      setEventForm({ title: '', start: null, end: null });
+      setEventForm({
+        presentationDate: '',
+        startTime: '',
+        subject: '',
+        description: '',
+        status: 'Planifié',
+      });
     }
   };
 
   const handleCancel = () => {
     setShowEventForm(false);
     setSelectedEvent(null);
-    setEventForm({ title: '', start: null, end: null });
+    setEventForm({
+      presentationDate: '',
+      startTime: '',
+      subject: '',
+      description: '',
+      status: 'Planifié',
+    });
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState(true);
@@ -120,134 +157,157 @@ const Calendrier = () => {
   };
 
   return (
-    
     <Container>
-        {isMenuOpen && <Barre />}
+      {isMenuOpen && <Barre />}
       <Content>
         <Header>
-        <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
+          <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
         </Header>
-      <h1>Calendrier des Réunions</h1>
+        <h1>Calendrier des Réunions</h1>
 
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={() => setShowEventForm(true)}
-          style={{ padding: '10px 20px', backgroundColor: '#FF8113', color: 'white', border: 'none', borderRadius: '4px' }}
-        >
-          Ajouter une réunion
-        </button>
-      </div>
+        <div style={{ marginBottom: '20px' }}>
+          <button
+            onClick={() => setShowEventForm(true)}
+            style={{ padding: '10px 20px', backgroundColor: '#FF8113', color: 'white', border: 'none', borderRadius: '4px' }}
+          >
+            Ajouter une réunion
+          </button>
+        </div>
 
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 500 }}
-        onSelectSlot={handleSelectSlot}
-        onSelectEvent={handleSelectEvent}
-        selectable
-        min={minDate}
-        max={maxDate}
-        views={['month', 'week', 'day']}
-        defaultView="month"
-        culture="fr"
-        messages={{
-          allDay: 'Toute la journée',
-          previous: 'Précédent',
-          next: 'Suivant',
-          today: 'Aujourd\'hui',
-          month: 'Mois',
-          week: 'Semaine',
-          day: 'Jour',
-          agenda: 'Agenda',
-          date: 'Date',
-          time: 'Heure',
-          event: 'Événement',
-          noEventsInRange: 'Aucun événement dans cette période.',
-          showMore: (total) => `+ ${total} de plus`,
-        }}
-      />
+        <Calendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: 500 }}
+          onSelectSlot={handleSelectSlot}
+          onSelectEvent={handleSelectEvent}
+          selectable
+          min={minDate}
+          max={maxDate}
+          views={['month', 'week', 'day']}
+          defaultView="month"
+          culture="fr"
+          messages={{
+            allDay: 'Toute la journée',
+            previous: 'Précédent',
+            next: 'Suivant',
+            today: 'Aujourd\'hui',
+            month: 'Mois',
+            week: 'Semaine',
+            day: 'Jour',
+            agenda: 'Agenda',
+            date: 'Date',
+            time: 'Heure',
+            event: 'Événement',
+            noEventsInRange: 'Aucun événement dans cette période.',
+            showMore: (total) => `+ ${total} de plus`,
+          }}
+        />
 
-      {showEventForm && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
+        {showEventForm && (
           <div style={{
-            backgroundColor: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            width: '400px',
-            maxWidth: '90%'
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
           }}>
-            <h3>{selectedEvent ? 'Modifier la réunion' : 'Nouvelle réunion'}</h3>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '20px',
+              borderRadius: '8px',
+              width: '400px',
+              maxWidth: '90%'
+            }}>
+              <h3>{selectedEvent ? 'Modifier la réunion' : 'Nouvelle réunion'}</h3>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Titre:</label>
-              <input
-                type="text"
-                value={eventForm.title}
-                onChange={(e) => setEventForm({...eventForm, title: e.target.value})}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                placeholder="Titre de la réunion"
-              />
-            </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Date de présentation:</label>
+                <input
+                  type="date"
+                  value={eventForm.presentationDate}
+                  onChange={(e) => setEventForm({ ...eventForm, presentationDate: e.target.value })}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                />
+              </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Date de début:</label>
-              <input
-                type="datetime-local"
-                value={eventForm.start ? format(eventForm.start, "yyyy-MM-dd'T'HH:mm") : ''}
-                onChange={(e) => setEventForm({...eventForm, start: new Date(e.target.value)})}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Heure de début:</label>
+                <input
+                  type="time"
+                  value={eventForm.startTime}
+                  onChange={(e) => setEventForm({ ...eventForm, startTime: e.target.value })}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                />
+              </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Date de fin:</label>
-              <input
-                type="datetime-local"
-                value={eventForm.end ? format(eventForm.end, "yyyy-MM-dd'T'HH:mm") : ''}
-                onChange={(e) => setEventForm({...eventForm, end: new Date(e.target.value)})}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Sujet:</label>
+                <input
+                  type="text"
+                  value={eventForm.subject}
+                  onChange={(e) => setEventForm({ ...eventForm, subject: e.target.value })}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  placeholder="Sujet de la réunion"
+                />
+              </div>
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={handleCancel}
-                style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px' }}
-              >
-                Annuler
-              </button>
-              {selectedEvent && (
-                <button
-                  onClick={handleDeleteEvent}
-                  style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Description:</label>
+                <textarea
+                  value={eventForm.description}
+                  onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  placeholder="Description de la réunion"
+                  rows={3}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Statut:</label>
+                <select
+                  value={eventForm.status}
+                  onChange={(e) => setEventForm({ ...eventForm, status: e.target.value })}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                 >
-                  Supprimer
+                  <option value="Planifié">Planifié</option>
+                  <option value="Annulé">Annulé</option>
+                  <option value="Confirmé">Confirmé</option>
+                  <option value="Terminé">Terminé</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={handleCancel}
+                  style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px' }}
+                >
+                  Annuler
                 </button>
-              )}
-              <button
-                onClick={handleSaveEvent}
-                style={{ padding: '8px 16px', backgroundColor: '#FF8113', color: 'white', border: 'none', borderRadius: '4px' }}
-              >
-                {selectedEvent ? 'Modifier' : 'Enregistrer'}
-              </button>
+                {selectedEvent && (
+                  <button
+                    onClick={handleDeleteEvent}
+                    style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}
+                  >
+                    Supprimer
+                  </button>
+                )}
+                <button
+                  onClick={handleSaveEvent}
+                  style={{ padding: '8px 16px', backgroundColor: '#FF8113', color: 'white', border: 'none', borderRadius: '4px' }}
+                >
+                  {selectedEvent ? 'Modifier' : 'Enregistrer'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        
-      )}
+        )}
       </Content>
     </Container>
   );

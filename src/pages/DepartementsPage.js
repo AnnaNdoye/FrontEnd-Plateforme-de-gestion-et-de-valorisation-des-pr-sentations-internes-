@@ -25,6 +25,28 @@ const DepartementsPage = () =>
 
     // Filtrer les départements quand le terme de recherche change
     useEffect(() => {
+        const filterDepartements = async () => {
+            if (!searchTerm.trim()) {
+                setFilteredDepartements(departements);
+                return;
+            }
+            
+            try {
+                const response = await departementService.search(searchTerm);
+                // Mapping des résultats de recherche
+                const mappedResults = response.data.map(dept => ({
+                    id: dept.idDepartement,
+                    nom: dept.nomDepartement,
+                    code: dept.code,
+                    description: dept.description
+                }));
+                setFilteredDepartements(mappedResults);
+            } catch (error) {
+                console.error('Erreur lors de la recherche:', error);
+                setFilteredDepartements([]);
+            }
+        };
+
         filterDepartements();
     }, [searchTerm, departements]); //tableau de dépendances
 
@@ -33,14 +55,14 @@ const DepartementsPage = () =>
         try {
             setLoading(true);
             console.log('Chargement des départements...');
-            
+
             // Test de connexion d'abord attend que l'appel departement.test finisse
-            await departementService.test(); 
+            await departementService.test();
             console.log('Connexion API OK');
-            
+
             const response = await departementService.getAll();
             console.log('Départements reçus:', response.data);
-            
+
             // Mapping des données backend vers frontend
             const mappedDepartements = response.data.map(dept => ({
                 id: dept.idDepartement,
@@ -48,7 +70,7 @@ const DepartementsPage = () =>
                 code: dept.code,
                 description: dept.description
             }));
-            
+
             console.log('Départements mappés:', mappedDepartements);
             setDepartements(mappedDepartements);
             setError('');
@@ -63,28 +85,6 @@ const DepartementsPage = () =>
             }
         } finally {
             setLoading(false);
-        }
-    };
-
-    const filterDepartements = async () => {
-        if (!searchTerm.trim()) {
-            setFilteredDepartements(departements);
-            return;
-        }
-        
-        try {
-            const response = await departementService.search(searchTerm);
-            // Mapping des résultats de recherche
-            const mappedResults = response.data.map(dept => ({
-                id: dept.idDepartement,
-                nom: dept.nomDepartement,
-                code: dept.code,
-                description: dept.description
-            }));
-            setFilteredDepartements(mappedResults);
-        } catch (error) {
-            console.error('Erreur lors de la recherche:', error);
-            setFilteredDepartements([]);
         }
     };
 
