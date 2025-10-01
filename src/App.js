@@ -11,6 +11,7 @@ import DashboardPlateforme from "./pages/plateforme/Plateforme";
 import Dashboard from "./pages/plateforme/Dashboard";
 import Barre from "./pages/plateforme/Barre";
 import Recherche from "./pages/plateforme/Recherche";
+import Calendrier from "./pages/plateforme/Calendrier";
 
 
 function App(){
@@ -26,6 +27,8 @@ function App(){
         <Route path="/plateforme/dashboard" element={<Dashboard/>} />
         <Route path="/plateforme/barre" element={<Barre/>} />
         <Route path="/plateforme/recherche" element={<Recherche/>} />
+        <Route path="/plateforme/calendrier" element={<Calendrier/>} />
+        
         
         
       </Routes>
