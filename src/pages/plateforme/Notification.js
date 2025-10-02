@@ -5,7 +5,6 @@ import Barre from './Barre';
 
 const Container = styled.div`
     display: flex;
-    height: 100vh;
     background: linear-gradient(135deg, #FFF8F0 0%, #e6dfd9ff 100%);
 `;
 
