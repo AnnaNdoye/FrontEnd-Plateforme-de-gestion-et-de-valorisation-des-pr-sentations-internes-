@@ -15,6 +15,7 @@ const Content = styled.div`
   padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(135deg, #FFF8F0 0%, #e6dfd9ff 100%);
 `;
 
 const Header = styled.div`
