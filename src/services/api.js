@@ -13,6 +13,16 @@ const api = axios.create({
 
 export default api;
 
+// Profile API functions
+export const getProfile = async () => {
+    const response = await api.get('/profile');
+    return response.data;
+};
+
+export const updateProfile = async (profileData) => {
+    const response = await api.put('/profile', profileData);
+    return response.data;
+};
 
 // Explication détaillé du code api.js
 // on importe la librairie axios pour faire des requêtes HTTP

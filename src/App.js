@@ -14,7 +14,7 @@ import Calendrier from "./pages/plateforme/Calendrier";
 import Notification from "./pages/plateforme/Notification";
 import Profil from "./pages/plateforme/Profil";
 
-function App(){
+function App() {
   return(
     <Router>
       <Routes>
