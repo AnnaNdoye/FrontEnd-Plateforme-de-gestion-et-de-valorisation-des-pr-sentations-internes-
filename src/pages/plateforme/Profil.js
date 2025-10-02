@@ -133,7 +133,7 @@ const Profil = () => {
         prenom: 'Prénom Utilisateur',
         email: 'utilisateur@gmail.com',
         poste: 'Poste Utilisateur',
-        matricule: '123456',
+        matricule: 'Anna123456789',
         dateInscription: new Date().toISOString(),
         photo: null,
     });

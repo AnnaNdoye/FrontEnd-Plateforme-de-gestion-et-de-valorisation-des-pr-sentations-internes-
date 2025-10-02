@@ -4,9 +4,6 @@ import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar, FaList } from 'react-
 import { MdDashboard } from 'react-icons/md';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-
-
-
 const shimmer = keyframes`
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
