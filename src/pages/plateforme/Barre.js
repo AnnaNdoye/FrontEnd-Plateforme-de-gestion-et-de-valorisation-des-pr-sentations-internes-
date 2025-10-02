@@ -4,6 +4,9 @@ import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar, FaList } from 'react-
 import { MdDashboard } from 'react-icons/md';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+
+
+
 const shimmer = keyframes`
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -12,12 +15,12 @@ const shimmer = keyframes`
 const Container = styled.div`
     display: flex;
     height: 100%;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #FFF8F0 0%, #e6dfd9ff 100%);
 `;
 
 const Sidebar = styled.div`
-    width: ${props => props.isOpen ? '280px' : '80px'};
-    min-width: ${props => props.isOpen ? '280px' : '80px'};
+    width: 280px;
+    min-width: 280px;
     background: linear-gradient(135deg, #e59847ff, #ffac13ff, #ffc013bf);
     color: white;
     padding: 2rem 1.5rem;
@@ -26,7 +29,6 @@ const Sidebar = styled.div`
     overflow-y: auto;
     position: relative;
     z-index: 10;
-    transition: width 0.3s ease;
 
   /* Style de la barre de défilement */
     &::-webkit-scrollbar {
@@ -61,7 +63,7 @@ const LogoContainer = styled.div`
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     position: sticky;
     top: 0;
-    background: linear-gradient(135deg, #FF8113, #FF5E13);
+    background: linear-gradient(135deg, #f58b2da5, #ff7231b7);
     z-index: 1;
 
     svg {
@@ -236,16 +238,19 @@ const Barre = () => {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+
     const [isMenuOpen, setIsMenuOpen] = useState(true);
-    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+    const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    };
 
     const getActiveTab = () => {
     const path = location.pathname;
-    if (path.includes('/calendrier')) return 'calendrier';
-    if (path.includes('/notification')) return 'notification';
-    if (path.includes('/profil')) return 'profil';
-    if (path.includes('/dashboard')) return 'dashboard';
-    if (path.includes('/notifications')) return 'notifications';
+    if (path.includes('/plateforme/calendrier')) return 'calendrier';
+    if (path.includes('/plateforme/notification')) return 'notification';
+    if (path.includes('/plateforme/profil')) return 'profil';
+    if (path.includes('/plateforme/dashboard')) return 'dashboard';
+    if (path.includes('/plateforme/notifications')) return 'notifications';
     return 'dashboard';
     };
 
@@ -306,32 +311,34 @@ const handleLogoutCancel = () => {
   //tableau de bord
     return (
     <Container>
-        <Sidebar isOpen={isMenuOpen}>
+        {isMenuOpen && (
+        <Sidebar>
         <LogoContainer>
             <FaLeaf />
+            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#FFD700' }} />
             <h2>Presentation</h2>
-            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
         </LogoContainer>
         <NavItem active={activeTab === 'dashboard'} onClick={() => handleNavigation('/plateforme/dashboard')}>
-            <MdDashboard /> {isMenuOpen && 'Tableau de bord'}
+            <MdDashboard /> Tableau de bord
         </NavItem>
-                
+
         <NavItem active={activeTab === 'calendrier'} onClick={() => handleNavigation('/plateforme/calendrier')}>
-            <FaCalendar /> {isMenuOpen && 'Calendrier'}
+            <FaCalendar /> Calendrier
         </NavItem>
 
         <NavItem active={activeTab === 'notification'} onClick={() => handleNavigation('/plateforme/notification')}>
-            <FaBell /> {isMenuOpen && 'Notifications'}
+            <FaBell /> Notifications
         </NavItem>
 
         <NavItem active={activeTab === 'profil'} onClick={() => handleNavigation('/plateforme/profil')}>
-            <FaUser /> {isMenuOpen && 'Profil'}
+            <FaUser /> Profil
         </NavItem>
 
         <LogoutButton onClick={handleLogoutClick}>
-            <FaSignOutAlt /> {isMenuOpen && 'Déconnexion'}
+            <FaSignOutAlt /> Déconnexion
         </LogoutButton>
         </Sidebar>
+        )}
 
         {showLogoutModal && (
         <ModalOverlay>
