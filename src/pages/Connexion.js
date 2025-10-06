@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { login } from '../services/api';
 
 const Connexion = () => {
 
@@ -95,6 +96,13 @@ const Connexion = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        try {
+            const response = await login(email, motDePasse);
+            localStorage.setItem('token', response.token);
+            navigate('/plateforme'); // Redirect after login
+        } catch (error) {
+            alert('Erreur de connexion : ' + (error.response?.data || error.message));
+        }
     }
 
 return (

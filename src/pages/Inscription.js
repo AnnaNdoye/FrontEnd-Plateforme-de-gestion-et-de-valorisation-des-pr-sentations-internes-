@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook } from 'react-icons/fa';
+import { register } from '../services/api';
 
 const Inscription = () => {
     const navigate = useNavigate();
@@ -93,8 +94,16 @@ const Inscription = () => {
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
     //const [ isLoading, setIsLoading ] = useState(false);
-    const handleSubmit = (e) => {
-        e.preventDefault(); 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const userData = { prenom, nom, poste, matricule, email, motDePasse };
+            await register(userData);
+            alert('Inscription réussie, veuillez vous connecter.');
+            navigate('/connexion');
+        } catch (error) {
+            alert('Erreur lors de l\'inscription : ' + (error.response?.data || error.message));
+        }
     }
 
     return (

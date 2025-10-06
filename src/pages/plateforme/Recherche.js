@@ -70,7 +70,7 @@ const Recherche = ({ onSearch }) => {
         </button>
         </form>
     </SearchContainer>
-  );
+    );
 };
 
 export default Recherche;

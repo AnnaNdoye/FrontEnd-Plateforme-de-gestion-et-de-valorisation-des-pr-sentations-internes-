@@ -213,7 +213,7 @@ const Profil = () => {
         setProfile({ ...originalProfile });
         setIsEditing(false);
     };
-
+    
     return (
         <Container>
             {isMenuOpen && <Barre />}
