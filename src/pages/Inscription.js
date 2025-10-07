@@ -137,9 +137,9 @@ const Inscription = () => {
             <Label>Prénom</Label>
             <InputIcon><FaUser /></InputIcon>
             <Input
-                type="text"
+                type="name"
                 name="prenom"
-                placeholder="prénom"
+                placeholder="Votre prénom"
                 value={prenom}
                 onChange={(e) => setPrenom(e.target.value)}
                 required
@@ -150,9 +150,9 @@ const Inscription = () => {
             <Label>Nom</Label>
             <InputIcon><FaUser /></InputIcon>
             <Input
-                type="text"
+                type="name"
                 name="nom"
-                placeholder="Nom"
+                placeholder="Votre nom"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
                 required
@@ -165,7 +165,7 @@ const Inscription = () => {
             <Input
                 type="text"
                 name="poste"
-                placeholder="Poste"
+                placeholder="Votre poste"
                 value={poste}
                 onChange={(e) => setPoste(e.target.value)}
                 required
@@ -178,7 +178,7 @@ const Inscription = () => {
             <Input
                 type="text"
                 name="matricule"
-                placeholder="Matricule"
+                placeholder="Votre matricule"
                 value={matricule}
                 onChange={(e) => setMatricule(e.target.value)}
                 required
@@ -189,9 +189,9 @@ const Inscription = () => {
             <Label>E-mail</Label>
             <InputIcon><FaEnvelope /></InputIcon>
             <Input
-                type="text"
+                type="email"
                 name="email"
-                placeholder="E-mail"
+                placeholder="Votre adresse email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -204,7 +204,7 @@ const Inscription = () => {
             <Input
                 type="password"
                 name="motDePasse"
-                placeholder="••••••••••••••••"
+                placeholder="Votre mot de passe"
                 value={motDePasse}
                 onChange={(e) => setMotDePasse(e.target.value)}
                 required

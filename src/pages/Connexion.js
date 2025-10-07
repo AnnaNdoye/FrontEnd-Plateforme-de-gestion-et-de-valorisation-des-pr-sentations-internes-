@@ -202,11 +202,10 @@ const Connexion = () => {
                         <Input
                             type="email"
                             name="email"
-                            placeholder="anna@email.com"
+                            placeholder="Votre adresse email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            autoComplete="email"
                         />
                     </InputWrapper>
                 </InputGroup>
@@ -218,7 +217,7 @@ const Connexion = () => {
                         <Input
                             type={showPassword ? "text" : "password"}
                             name="motDePasse"
-                            placeholder="••••••••••••••••"
+                            placeholder="Votre mot de passe"
                             value={motDePasse}
                             onChange={(e) => setMotDePasse(e.target.value)}
                             required
