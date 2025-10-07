@@ -136,7 +136,7 @@ const Connexion = () => {
     
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [montrerMotDePasse, setmontrerMotDePasse] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const retour = () => {
@@ -146,7 +146,7 @@ const Connexion = () => {
 
     const togglePasswordVisibility = (e) => {
         e.preventDefault();
-        setShowPassword(!showPassword);
+        setmontrerMotDePasse(!montrerMotDePasse);
     };
 
     const handleSubmit = async (e) => {
@@ -215,7 +215,7 @@ const Connexion = () => {
                     <InputWrapper>
                         <InputIcon><FaLock /></InputIcon>
                         <Input
-                            type={showPassword ? "text" : "password"}
+                            type={montrerMotDePasse ? "text" : "password"}
                             name="motDePasse"
                             placeholder="Votre mot de passe"
                             value={motDePasse}
@@ -227,9 +227,9 @@ const Connexion = () => {
                         <TogglePasswordButton 
                             type="button"
                             onClick={togglePasswordVisibility}
-                            aria-label={showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"}
+                            aria-label={montrerMotDePasse ? "Cacher le mot de passe" : "Afficher le mot de passe"}
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
                         </TogglePasswordButton>
                     </InputWrapper>
                     <PasswordHelp>Minimum 8 caractères</PasswordHelp>

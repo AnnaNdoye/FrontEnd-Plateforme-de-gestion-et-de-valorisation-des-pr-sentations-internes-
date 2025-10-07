@@ -87,14 +87,50 @@ const Inscription = () => {
     &:hover { text-decoration: underline; }
     `;
 
+    const TogglePasswordButton = styled.button`
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #FF8113;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    &:hover {
+        color: #e67010;
+    }
+    &:focus {
+        outline: none;
+    }
+    `;
+
+    const PasswordHelp = styled.small`
+    font-size: 0.85rem;
+    color: #666;    
+    margin-left: 0.5rem;
+    margin-top: 0.3rem;
+    `;
+
     const [prenom, setPrenom] = useState('');
     const [nom, setNom] = useState('');
     const [poste, setPoste] = useState('');
     const [matricule, setMatricule] = useState('');
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [montrerMotDePasse, setMontrerMotDePasse] = useState(false);
     //const [ isLoading, setIsLoading ] = useState(false);
+
+    const toggleMontrerMotDePasse = (e) => {
+        e.preventDefault();
+        setMontrerMotDePasse(!montrerMotDePasse);
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -199,17 +235,25 @@ const Inscription = () => {
             </InputGroup>
 
             <InputGroup>
-            <Label>Mot de passe</Label>
-            <InputIcon><FaLock /></InputIcon>
-            <Input
-                type="password"
-                name="motDePasse"
-                placeholder="Votre mot de passe"
-                value={motDePasse}
-                onChange={(e) => setMotDePasse(e.target.value)}
-                required
-                minLength="8"
-            />
+                <Label>Mot de passe</Label>
+                <InputIcon><FaLock /></InputIcon>
+                <   Input
+                    type={montrerMotDePasse ? "text" : "password"}
+                    name="motDePasse"
+                    placeholder="Votre mot de passe"
+                    value={motDePasse}
+                    onChange={(e) => setMotDePasse(e.target.value)}
+                    required
+                    minLength="8"
+                />
+                <TogglePasswordButton 
+                    type="button"
+                    onClick={toggleMontrerMotDePasse}
+                    aria-label={montrerMotDePasse ? "Cacher le mot de passe" : "Afficher le mot de passe"}
+                >
+                    {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
+                </TogglePasswordButton>
+
             </InputGroup>
 
             <SubmitButton type="submit" >
