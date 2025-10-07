@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { login } from '../services/api';
 
-// ✅ DÉPLACER TOUS LES STYLED-COMPONENTS ICI (EN DEHORS DU COMPOSANT)
 const Form = styled.form`
     width: 100%;
     max-width: 600px;

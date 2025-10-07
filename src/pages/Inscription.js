@@ -4,15 +4,7 @@ import styled from 'styled-components';
 import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { register } from '../services/api';
 
-const Inscription = () => {
-    const navigate = useNavigate();
-
-    const retour = () => {
-    console.log("Navigation vers /");
-    navigate("/");
-    }
-
-    const Form = styled.form`
+const Form = styled.form`
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
@@ -24,7 +16,7 @@ const Inscription = () => {
     border: 1px solid rgba(255, 255, 255, 0.3);
     `;
 
-    const InputGroup = styled.div`
+const InputGroup = styled.div`
     position: relative;
     margin-bottom: 1.8rem;
     display: flex;
@@ -32,14 +24,19 @@ const Inscription = () => {
     gap: 0.6rem;
     `;
 
-    const Label = styled.label`
+const Label = styled.label`
     font-size: 1rem;
     color: #2e7d32;
     font-weight: 600;
     margin-left: 0.5rem
     `;
 
-    const Input = styled.input`
+const InputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+    `;
+
+const Input = styled.input`
     padding: 1.1rem 1.1rem 1.1rem 3.5rem;
     border: 2px solid #e0f2e9;
     border-radius: 14px;
@@ -54,7 +51,7 @@ const Inscription = () => {
     }
     `;
 
-    const InputIcon = styled.div`
+const InputIcon = styled.div`
     position: absolute;
     top: 50%;
     left: 1rem;
@@ -63,31 +60,7 @@ const Inscription = () => {
     font-size: 1.2rem;
     `;
 
-    const SubmitButton = styled.button`
-    padding: 1.2rem 2rem;
-    background-color: #FF8113;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    `;
-
-    const LinksContainer = styled.div`
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: #FF8113;
-    `;
-
-    const StyledLink = styled(Link)`
-    color: #FF8113;
-    text-decoration: none;
-    &:hover { text-decoration: underline; }
-    `;
-
-    const TogglePasswordButton = styled.button`
+const TogglePasswordButton = styled.button`
     position: absolute;
     top: 50%;
     right: 1rem;
@@ -108,19 +81,56 @@ const Inscription = () => {
     &:focus {
         outline: none;
     }
-    `;
+`;
 
-    const PasswordHelp = styled.small`
+const PasswordHelp = styled.small`
     font-size: 0.85rem;
     color: #666;    
     margin-left: 0.5rem;
     margin-top: 0.3rem;
+`;
+
+const SubmitButton = styled.button`
+    width: 100%;
+    padding: 1.2rem 2rem;
+    background-color: #FF8113;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    &:hover {
+        background-color: #e67010;
+    }
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+`;
+
+const LinksContainer = styled.div`
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #FF8113;
     `;
 
-    const InputWrapper = styled.div`
-    position: relative;
-    width: 100%;
+const StyledLink = styled(Link)`
+    color: #FF8113;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
     `;
+
+const Inscription = () => {
+    const navigate = useNavigate();
+
+    const retour = () => {
+    console.log("Navigation vers /");
+    navigate("/");
+    }
 
     const [prenom, setPrenom] = useState('');
     const [nom, setNom] = useState('');
