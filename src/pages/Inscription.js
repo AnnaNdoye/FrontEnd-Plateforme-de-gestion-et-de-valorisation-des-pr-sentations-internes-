@@ -385,7 +385,7 @@ const Inscription = () => {
 
                 <LinksContainer>
                     <StyledLink to="/connexion">
-                        Déjà inscrit ? Se connecter
+                        Déjà inscrit ?    Se connecter
                     </StyledLink>
                 </LinksContainer>
             </Form>
