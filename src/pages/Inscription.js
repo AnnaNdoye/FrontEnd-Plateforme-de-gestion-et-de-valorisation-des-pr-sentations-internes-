@@ -254,6 +254,7 @@ const Inscription = () => {
                     {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
                 </TogglePasswordButton>
 
+                <PasswordHelp>Minimum 8 caractères</PasswordHelp>
             </InputGroup>
 
             <SubmitButton type="submit" >
