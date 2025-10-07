@@ -129,7 +129,6 @@ const StyledLink = styled(Link)`
     }
 `;
 
-// ✅ LE COMPOSANT COMMENCE ICI
 const Connexion = () => {
     const navigate = useNavigate();
     
@@ -150,12 +149,6 @@ const Connexion = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (motDePasse.length < 8) {
-            alert('Le mot de passe doit contenir au moins 8 caractères');
-            return;
-        }
-
         setIsLoading(true);
         try {
             const response = await login(email, motDePasse);

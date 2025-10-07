@@ -148,6 +148,12 @@ const Inscription = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (motDePasse.length < 8) {
+            alert('Le mot de passe doit contenir au moins 8 caractères');
+            return;
+        }
+
         try {
             const userData = { prenom, nom, poste, matricule, email, motDePasse };
             await register(userData);
