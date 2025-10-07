@@ -1,8 +1,41 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { register } from '../services/api';
+
+const Container = styled.div`
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    backgroundColor: #f5f5f5;
+    minHeight: 100vh;
+`;
+
+const RetourButton = styled.button`
+    padding: 1rem 2rem;
+    background-color: #FF8113;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    
+    &:hover {
+        background-color: #e67010;
+        transform: translateX(-5px);
+    }
+    
+    &:active {
+        transform: translateX(-3px);
+    }
+`;
 
 const Form = styled.form`
     width: 100%;
@@ -14,7 +47,7 @@ const Form = styled.form`
     box-shadow: 0 12px 40px rgba(76, 175, 80, 0.15);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    `;
+`;
 
 const InputGroup = styled.div`
     position: relative;
@@ -22,34 +55,37 @@ const InputGroup = styled.div`
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
-    `;
+`;
 
 const Label = styled.label`
     font-size: 1rem;
     color: #2e7d32;
     font-weight: 600;
-    margin-left: 0.5rem
-    `;
+    margin-left: 0.5rem;
+`;
 
 const InputWrapper = styled.div`
     position: relative;
     width: 100%;
-    `;
+`;
 
 const Input = styled.input`
+    width: 100%;
     padding: 1.1rem 1.1rem 1.1rem 3.5rem;
     border: 2px solid #e0f2e9;
     border-radius: 14px;
     font-size: 1.05rem;
     transition: all 0.3s ease;
     background-color: #f7fdf9;
+    box-sizing: border-box;
+    
     &:focus {
         border-color: #FF8113;
         outline: none;
         box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
         background-color: white;
     }
-    `;
+`;
 
 const InputIcon = styled.div`
     position: absolute;
@@ -58,7 +94,7 @@ const InputIcon = styled.div`
     transform: translateY(-50%);
     color: #FF8113;
     font-size: 1.2rem;
-    `;
+`;
 
 const TogglePasswordButton = styled.button`
     position: absolute;
@@ -75,9 +111,11 @@ const TogglePasswordButton = styled.button`
     align-items: center;
     justify-content: center;
     transition: color 0.2s ease;
+    
     &:hover {
         color: #e67010;
     }
+    
     &:focus {
         outline: none;
     }
@@ -100,13 +138,18 @@ const SubmitButton = styled.button`
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    
     &:hover {
         background-color: #e67010;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 129, 19, 0.3);
     }
+    
     &:disabled {
         background-color: #ccc;
         cursor: not-allowed;
+        transform: none;
     }
 `;
 
@@ -116,20 +159,59 @@ const LinksContainer = styled.div`
     justify-content: space-between;
     font-size: 0.9rem;
     color: #FF8113;
-    `;
+`;
 
 const StyledLink = styled(Link)`
     color: #FF8113;
     text-decoration: none;
-    &:hover { text-decoration: underline; }
-    `;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover { 
+        text-decoration: underline;
+        color: #e67010;
+    }
+`;
+
+const ErrorMessage = styled.div`
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #c62828;
+`;
+
+const SuccessMessage = styled.div`
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #2e7d32;
+`;
+
+const LoadingSpinner = styled.div`
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s ease-in-out infinite;
+    margin-right: 0.5rem;
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
 
 const Inscription = () => {
     const navigate = useNavigate();
 
     const retour = () => {
-    console.log("Navigation vers /");
-    navigate("/");
+        console.log("Navigation vers /");
+        navigate("/");
     }
 
     const [prenom, setPrenom] = useState('');
@@ -139,7 +221,9 @@ const Inscription = () => {
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
     const [montrerMotDePasse, setMontrerMotDePasse] = useState(false);
-    //const [ isLoading, setIsLoading ] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const toggleMontrerMotDePasse = (e) => {
         e.preventDefault();
@@ -148,160 +232,164 @@ const Inscription = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setSuccess('');
 
         if (motDePasse.length < 8) {
-            alert('Le mot de passe doit contenir au moins 8 caractères');
+            setError('Le mot de passe doit contenir au moins 8 caractères');
             return;
         }
+
+        setIsLoading(true);
 
         try {
             const userData = { prenom, nom, poste, matricule, email, motDePasse };
             await register(userData);
-            alert('Inscription réussie, veuillez vous connecter.');
-            navigate('/connexion');
+            setSuccess('Inscription réussie ! Redirection vers la page de connexion...');
+            setTimeout(() => {
+                navigate('/connexion');
+            }, 2000);
         } catch (error) {
-            alert('Erreur lors de l\'inscription : ' + (error.response?.data || error.message));
+            setError('Erreur lors de l\'inscription : ' + (error.response?.data?.message || error.message));
+            setIsLoading(false);
         }
     }
 
     return (
-    <div style={{ 
-        margin: '0 auto', 
-        padding: '2rem 1rem',
-        backgroundColor: '#f5f5f5',
-        minHeight: '100vh'
-    }}>
-    
-    <button
-            onClick={retour}
-            style={{
-                padding: '1rem 2rem',
-                backgroundColor: '#FF8113',
-                fontweight: 'bold',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1.1rem',
-                cursor: 'pointer',
-                minWidth: '150px'
-            }}
-        >
-            Retour
-        </button>
+        <Container>
+            <RetourButton onClick={retour}>
+                <FaArrowLeft />
+                Retour
+            </RetourButton>
 
-        <Form onSubmit={handleSubmit}>
-            <InputGroup>
-                <Label>Prénom</Label>
-                <InputWrapper>
-                    <InputIcon><FaUser /></InputIcon>
-                    <Input
-                        type="name"
-                        name="prenom"
-                        placeholder="Votre prénom"
-                        value={prenom}
-                        onChange={(e) => setPrenom(e.target.value)}
-                        required
-                    />
-                </InputWrapper>
-            </InputGroup>
+            <Form onSubmit={handleSubmit}>
+                {error && <ErrorMessage>{error}</ErrorMessage>}
+                {success && <SuccessMessage>{success}</SuccessMessage>}
 
-            <InputGroup>
-                <Label>Nom</Label>
-                <InputWrapper>
-                    <InputIcon><FaUser /></InputIcon>
-                    <Input
-                        type="name"
-                        name="nom"
-                        placeholder="Votre nom"
-                        value={nom}
-                        onChange={(e) => setNom(e.target.value)}
-                        required
-                    />
-                </InputWrapper>
-            </InputGroup>
+                <InputGroup>
+                    <Label>Prénom</Label>
+                    <InputWrapper>
+                        <InputIcon><FaUser /></InputIcon>
+                        <Input
+                            type="text"
+                            name="prenom"
+                            placeholder="Votre prénom"
+                            value={prenom}
+                            onChange={(e) => setPrenom(e.target.value)}
+                            required
+                            disabled={isLoading}
+                        />
+                    </InputWrapper>
+                </InputGroup>
 
-            <InputGroup>
-                <Label>Poste</Label>
-                <InputWrapper>
-                    <InputIcon><FaAddressBook/></InputIcon>
-                    <Input
-                        type="text"
-                        name="poste"
-                        placeholder="Votre poste"
-                        value={poste}
-                        onChange={(e) => setPoste(e.target.value)}
-                        required
-                    />
-                </InputWrapper>
-            </InputGroup>
+                <InputGroup>
+                    <Label>Nom</Label>
+                    <InputWrapper>
+                        <InputIcon><FaUser /></InputIcon>
+                        <Input
+                            type="text"
+                            name="nom"
+                            placeholder="Votre nom"
+                            value={nom}
+                            onChange={(e) => setNom(e.target.value)}
+                            required
+                            disabled={isLoading}
+                        />
+                    </InputWrapper>
+                </InputGroup>
 
-            <InputGroup>
-            <Label>Matriule</Label>
-            <InputWrapper>
-                <InputIcon><FaAddressCard /></InputIcon>
-                <Input
-                    type="text"
-                    name="matricule"
-                    placeholder="Votre matricule"
-                    value={matricule}
-                    onChange={(e) => setMatricule(e.target.value)}
-                    required
-                />
-            </InputWrapper>
-            </InputGroup>
+                <InputGroup>
+                    <Label>Poste</Label>
+                    <InputWrapper>
+                        <InputIcon><FaAddressBook/></InputIcon>
+                        <Input
+                            type="text"
+                            name="poste"
+                            placeholder="Votre poste"
+                            value={poste}
+                            onChange={(e) => setPoste(e.target.value)}
+                            required
+                            disabled={isLoading}
+                        />
+                    </InputWrapper>
+                </InputGroup>
 
-            <InputGroup>
-            <Label>E-mail</Label>
-            <InputWrapper>
-                <InputIcon><FaEnvelope /></InputIcon>
-                <Input
-                    type="email"
-                    name="email"
-                    placeholder="Votre adresse email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-            </InputWrapper>
-            </InputGroup>
+                <InputGroup>
+                    <Label>Matricule</Label>
+                    <InputWrapper>
+                        <InputIcon><FaAddressCard /></InputIcon>
+                        <Input
+                            type="text"
+                            name="matricule"
+                            placeholder="Votre matricule"
+                            value={matricule}
+                            onChange={(e) => setMatricule(e.target.value)}
+                            required
+                            disabled={isLoading}
+                        />
+                    </InputWrapper>
+                </InputGroup>
 
-            <InputGroup>
-                <Label>Mot de passe</Label>
-                <InputWrapper>
-                <InputIcon><FaLock /></InputIcon>
-                <Input
-                    type={montrerMotDePasse ? "text" : "password"}
-                    name="motDePasse"
-                    placeholder="Votre mot de passe"
-                    value={motDePasse}
-                    onChange={(e) => setMotDePasse(e.target.value)}
-                    required
-                    minLength="8"
-                />
-                <TogglePasswordButton 
-                    type="button"
-                    onClick={toggleMontrerMotDePasse}
-                    aria-label={montrerMotDePasse ? "Cacher le mot de passe" : "Afficher le mot de passe"}
-                >
-                    {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
-                </TogglePasswordButton>
-                </InputWrapper>
-                <PasswordHelp>Minimum 8 caractères</PasswordHelp>
-            </InputGroup>
+                <InputGroup>
+                    <Label>E-mail</Label>
+                    <InputWrapper>
+                        <InputIcon><FaEnvelope /></InputIcon>
+                        <Input
+                            type="email"
+                            name="email"
+                            placeholder="Votre adresse email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            disabled={isLoading}
+                        />
+                    </InputWrapper>
+                </InputGroup>
 
-            <SubmitButton type="submit" >
-                {"S'inscrire"}
-            </SubmitButton> 
+                <InputGroup>
+                    <Label>Mot de passe</Label>
+                    <InputWrapper>
+                        <InputIcon><FaLock /></InputIcon>
+                        <Input
+                            type={montrerMotDePasse ? "text" : "password"}
+                            name="motDePasse"
+                            placeholder="Votre mot de passe"
+                            value={motDePasse}
+                            onChange={(e) => setMotDePasse(e.target.value)}
+                            required
+                            minLength="8"
+                            disabled={isLoading}
+                        />
+                        <TogglePasswordButton 
+                            type="button"
+                            onClick={toggleMontrerMotDePasse}
+                            aria-label={montrerMotDePasse ? "Cacher le mot de passe" : "Afficher le mot de passe"}
+                            disabled={isLoading}
+                        >
+                            {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
+                        </TogglePasswordButton>
+                    </InputWrapper>
+                    <PasswordHelp>Minimum 8 caractères</PasswordHelp>
+                </InputGroup>
 
-            <LinksContainer>
-            <StyledLink>
-            </StyledLink>
-            <StyledLink to="/connexion">
-                Se connecter
-            </StyledLink>
-            </LinksContainer>
-        </Form>
-    </div>
+                <SubmitButton type="submit" disabled={isLoading}>
+                    {isLoading ? (
+                        <>
+                            <LoadingSpinner />
+                            Inscription en cours...
+                        </>
+                    ) : (
+                        "S'inscrire"
+                    )}
+                </SubmitButton> 
+
+                <LinksContainer>
+                    <StyledLink to="/connexion">
+                        Déjà inscrit ? Se connecter
+                    </StyledLink>
+                </LinksContainer>
+            </Form>
+        </Container>
     );
 };
 
