@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 
 import DepartementsPage from "./pages/DepartementsPage";
 import PageAccueil from "./pages/PageAccueil";
@@ -15,6 +15,12 @@ import Notification from "./pages/plateforme/Notification";
 import Profil from "./pages/plateforme/Profil";
 
 function App() {
+  const isAuthenticated = !!localStorage.getItem('token');
+
+  const ProtectedRoute = ({ children }) => {
+    return isAuthenticated ? children : <Navigate to="/connexion" />;
+  };
+
   return(
     <Router>
       <Routes>
@@ -23,13 +29,13 @@ function App() {
         <Route path="/connexion" element={<Connexion/>} />
         <Route path="/inscription" element={<Inscription/>} />
         <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie/>} />
-        <Route path="/plateforme" element={<DashboardPlateforme/>} />
-        <Route path="/plateforme/dashboard" element={<Dashboard/>} />
-        <Route path="/plateforme/barre" element={<Barre/>} />
-        <Route path="/plateforme/recherche" element={<Recherche/>} />
-        <Route path="/plateforme/calendrier" element={<Calendrier/>} />
-        <Route path="/plateforme/notification" element={<Notification/>} />
-        <Route path="/plateforme/profil" element={<Profil/>} />
+        <Route path="/plateforme" element={<ProtectedRoute><DashboardPlateforme/></ProtectedRoute>} />
+        <Route path="/plateforme/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
+        <Route path="/plateforme/barre" element={<ProtectedRoute><Barre/></ProtectedRoute>} />
+        <Route path="/plateforme/recherche" element={<ProtectedRoute><Recherche/></ProtectedRoute>} />
+        <Route path="/plateforme/calendrier" element={<ProtectedRoute><Calendrier/></ProtectedRoute>} />
+        <Route path="/plateforme/notification" element={<ProtectedRoute><Notification/></ProtectedRoute>} />
+        <Route path="/plateforme/profil" element={<ProtectedRoute><Profil/></ProtectedRoute>} />
       </Routes>
     </Router>
   );

@@ -10,7 +10,7 @@ const SearchBar = ({ searchTerm, onSearchChange, onClear }) => {
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="search-input"
-        />
+        /> 
         {searchTerm && (
             <button
             onClick={onClear}

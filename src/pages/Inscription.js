@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { register } from '../services/api';
 
 const Inscription = () => {
@@ -93,6 +93,7 @@ const Inscription = () => {
     const [matricule, setMatricule] = useState('');
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     //const [ isLoading, setIsLoading ] = useState(false);
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -136,7 +137,7 @@ const Inscription = () => {
             <Label>Prénom</Label>
             <InputIcon><FaUser /></InputIcon>
             <Input
-                type="name"
+                type="text"
                 name="prenom"
                 placeholder="prénom"
                 value={prenom}
@@ -149,7 +150,7 @@ const Inscription = () => {
             <Label>Nom</Label>
             <InputIcon><FaUser /></InputIcon>
             <Input
-                type="name"
+                type="text"
                 name="nom"
                 placeholder="Nom"
                 value={nom}

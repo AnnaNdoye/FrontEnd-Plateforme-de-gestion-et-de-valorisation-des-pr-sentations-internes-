@@ -29,12 +29,12 @@ export default api;
 
 // Auth API functions
 export const login = async (email, motDePasse) => {
-    const response = await api.post('/login', { email, motDePasse });
+    const response = await api.post('/auth/login', { email, motDePasse });
     return response.data;
 };
 
 export const register = async (userData) => {
-    const response = await api.post('/register', userData);
+    const response = await api.post('/auth/register', userData);
     return response.data;
 };
 
@@ -46,6 +46,11 @@ export const getProfile = async () => {
 
 export const updateProfile = async (profileData) => {
     const response = await api.put('/profile', profileData);
+    return response.data;
+};
+
+export const requestPasswordReset = async (email) => {
+    const response = await api.post('/password-reset', { email });
     return response.data;
 };
 

@@ -162,7 +162,7 @@ return (
             </SubmitButton> 
 
             <LinksContainer>
-            <StyledLink to="/mdp_oublie">
+            <StyledLink to="/mot-de-passe-oublie">
                 Mot de passe oublié ?
             </StyledLink>
             <StyledLink to="/inscription">
