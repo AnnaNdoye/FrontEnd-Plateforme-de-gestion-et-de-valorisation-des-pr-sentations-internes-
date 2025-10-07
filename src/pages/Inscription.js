@@ -117,6 +117,11 @@ const Inscription = () => {
     margin-top: 0.3rem;
     `;
 
+    const InputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+    `;
+
     const [prenom, setPrenom] = useState('');
     const [nom, setNom] = useState('');
     const [poste, setPoste] = useState('');
@@ -170,74 +175,85 @@ const Inscription = () => {
 
         <Form onSubmit={handleSubmit}>
             <InputGroup>
-            <Label>Prénom</Label>
-            <InputIcon><FaUser /></InputIcon>
-            <Input
-                type="name"
-                name="prenom"
-                placeholder="Votre prénom"
-                value={prenom}
-                onChange={(e) => setPrenom(e.target.value)}
-                required
-            />
+                <Label>Prénom</Label>
+                <InputWrapper>
+                    <InputIcon><FaUser /></InputIcon>
+                    <Input
+                        type="name"
+                        name="prenom"
+                        placeholder="Votre prénom"
+                        value={prenom}
+                        onChange={(e) => setPrenom(e.target.value)}
+                        required
+                    />
+                </InputWrapper>
             </InputGroup>
 
             <InputGroup>
-            <Label>Nom</Label>
-            <InputIcon><FaUser /></InputIcon>
-            <Input
-                type="name"
-                name="nom"
-                placeholder="Votre nom"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                required
-            />
+                <Label>Nom</Label>
+                <InputWrapper>
+                    <InputIcon><FaUser /></InputIcon>
+                    <Input
+                        type="name"
+                        name="nom"
+                        placeholder="Votre nom"
+                        value={nom}
+                        onChange={(e) => setNom(e.target.value)}
+                        required
+                    />
+                </InputWrapper>
             </InputGroup>
 
             <InputGroup>
-            <Label>Poste</Label>
-            <InputIcon><FaAddressBook/></InputIcon>
-            <Input
-                type="text"
-                name="poste"
-                placeholder="Votre poste"
-                value={poste}
-                onChange={(e) => setPoste(e.target.value)}
-                required
-            />
+                <Label>Poste</Label>
+                <InputWrapper>
+                    <InputIcon><FaAddressBook/></InputIcon>
+                    <Input
+                        type="text"
+                        name="poste"
+                        placeholder="Votre poste"
+                        value={poste}
+                        onChange={(e) => setPoste(e.target.value)}
+                        required
+                    />
+                </InputWrapper>
             </InputGroup>
 
             <InputGroup>
-            <Label>Nom</Label>
-            <InputIcon><FaAddressCard /></InputIcon>
-            <Input
-                type="text"
-                name="matricule"
-                placeholder="Votre matricule"
-                value={matricule}
-                onChange={(e) => setMatricule(e.target.value)}
-                required
-            />
+            <Label>Matriule</Label>
+            <InputWrapper>
+                <InputIcon><FaAddressCard /></InputIcon>
+                <Input
+                    type="text"
+                    name="matricule"
+                    placeholder="Votre matricule"
+                    value={matricule}
+                    onChange={(e) => setMatricule(e.target.value)}
+                    required
+                />
+            </InputWrapper>
             </InputGroup>
 
             <InputGroup>
             <Label>E-mail</Label>
-            <InputIcon><FaEnvelope /></InputIcon>
-            <Input
-                type="email"
-                name="email"
-                placeholder="Votre adresse email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-            />
+            <InputWrapper>
+                <InputIcon><FaEnvelope /></InputIcon>
+                <Input
+                    type="email"
+                    name="email"
+                    placeholder="Votre adresse email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+            </InputWrapper>
             </InputGroup>
 
             <InputGroup>
                 <Label>Mot de passe</Label>
+                <InputWrapper>
                 <InputIcon><FaLock /></InputIcon>
-                <   Input
+                <Input
                     type={montrerMotDePasse ? "text" : "password"}
                     name="motDePasse"
                     placeholder="Votre mot de passe"
@@ -253,7 +269,7 @@ const Inscription = () => {
                 >
                     {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
                 </TogglePasswordButton>
-
+                </InputWrapper>
                 <PasswordHelp>Minimum 8 caractères</PasswordHelp>
             </InputGroup>
 
