@@ -131,11 +131,12 @@ const StyledLink = styled(Link)`
 
 const Connexion = () => {
     const navigate = useNavigate();
-    
+
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
     const [montrerMotDePasse, setmontrerMotDePasse] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const retour = () => {
         console.log("Navigation vers /");
@@ -150,12 +151,14 @@ const Connexion = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setErrorMessage('');
         try {
             const response = await login(email, motDePasse);
             localStorage.setItem('token', response.token);
             navigate('/plateforme');
         } catch (error) {
-            alert('Erreur de connexion : ' + (error.response?.data || error.message));
+            const message = error.response?.data?.message || error.response?.data || error.message || 'Erreur inconnue';
+            setErrorMessage(message);
         } finally {
             setIsLoading(false);
         }
@@ -229,7 +232,22 @@ const Connexion = () => {
 
                 <SubmitButton type="submit" disabled={isLoading}>
                     {isLoading ? "Connexion..." : "Se connecter"}
-                </SubmitButton> 
+                </SubmitButton>
+
+                {errorMessage && (
+                    <div style={{
+                        marginTop: '1rem',
+                        padding: '1rem',
+                        backgroundColor: '#ffebee',
+                        border: '1px solid #f44336',
+                        borderRadius: '8px',
+                        color: '#c62828',
+                        fontSize: '0.9rem',
+                        textAlign: 'center'
+                    }}>
+                        {errorMessage}
+                    </div>
+                )}
 
                 <LinksContainer>
                     <StyledLink to="/mot-de-passe-oublie">

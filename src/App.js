@@ -1,7 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 
-import DepartementsPage from "./pages/DepartementsPage";
 import PageAccueil from "./pages/PageAccueil";
 import Connexion from "./pages/Connexion";
 import Inscription from "./pages/Inscription";
@@ -24,7 +23,7 @@ function App() {
   return(
     <Router>
       <Routes>
-        <Route path="/" element={<DepartementsPage/>} />
+        <Route path="/" element={<PageAccueil/>} />
         <Route path="/accueil" element={<PageAccueil/>} />
         <Route path="/connexion" element={<Connexion/>} />
         <Route path="/inscription" element={<Inscription/>} />

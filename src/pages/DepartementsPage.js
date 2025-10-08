@@ -5,7 +5,7 @@ import DepartementList from './DepartementList';
 import DepartementForm from './DepartementForm';
 import ConfirmDialog from './ConfirmDialog';
 
-const DepartementsPage = () => 
+const DepartementsPage = () =>
 {
     const [departements, setDepartements] = useState([]);
     const [filteredDepartements, setFilteredDepartements] = useState([]);
@@ -30,7 +30,7 @@ const DepartementsPage = () =>
                 setFilteredDepartements(departements);
                 return;
             }
-            
+
             try {
                 const response = await departementService.search(searchTerm);
                 // Mapping des résultats de recherche
@@ -140,14 +140,14 @@ const DepartementsPage = () =>
     const handleFormSubmit = async (formData) => {
         try {
             console.log('Soumission du formulaire:', formData);
-            
+
             // Mapping des données frontend vers backend
             const backendData = {
                 nomDepartement: formData.nom,
                 code: formData.code,
                 description: formData.description
             };
-            
+
             console.log('Données pour le backend:', backendData);
 
             if (editingDepartement) {
