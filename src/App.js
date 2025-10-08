@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 
+//import DepartementsPage from "./pages/DepartementsPage";
 import PageAccueil from "./pages/PageAccueil";
 import Connexion from "./pages/Connexion";
 import Inscription from "./pages/Inscription";
