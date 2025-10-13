@@ -156,13 +156,15 @@ const Profil = () => {
             }
         };
         loadProfile();
+    }, []);
 
+    useEffect(() => {
         return () => {
             if (profile.photo && profile.photo.startsWith('blob:')) {
                 URL.revokeObjectURL(profile.photo);
             }
         };
-    }, []);
+    }, [profile.photo]);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);

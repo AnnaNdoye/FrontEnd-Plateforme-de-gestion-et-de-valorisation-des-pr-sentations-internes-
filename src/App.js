@@ -25,22 +25,22 @@ function App() {
 		return(
 				<Router>
 						<Routes>
-									<Route path="/" element={<PageAccueil/>} />
-									<Route path="/accueil" element={<PageAccueil/>} />
-									<Route path="/connexion" element={<Connexion/>} />
-									<Route path="/inscription" element={<Inscription/>} />
-									<Route path="/mot-de-passe-oublie" element={<MotDePasseOublie/>} />
-									<Route path="/plateforme" element={<ProtectedRoute><DashboardPlateforme/></ProtectedRoute>} />
-									<Route path="/plateforme/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
-									<Route path="/plateforme/barre" element={<ProtectedRoute><Barre/></ProtectedRoute>} />
-									<Route path="/plateforme/recherche" element={<ProtectedRoute><Recherche/></ProtectedRoute>} />
-									<Route path="/plateforme/calendrier" element={<ProtectedRoute><Calendrier/></ProtectedRoute>} />
-									<Route path="/plateforme/notification" element={<ProtectedRoute><Notification/></ProtectedRoute>} />
-									<Route path="/plateforme/profil" element={<ProtectedRoute><Profil/></ProtectedRoute>} />
-									<Route path="/changer-mot-de-passe" element={<ChangerMotDePasse/>} />
-							</Routes>
-					</Router>
-	);
+								<Route path="/" element={<PageAccueil/>} />
+								<Route path="/accueil" element={<PageAccueil/>} />
+								<Route path="/connexion" element={<Connexion/>} />
+								<Route path="/inscription" element={<Inscription/>} />
+								<Route path="/mot-de-passe-oublie" element={<MotDePasseOublie/>} />
+								<Route path="/plateforme" element={<ProtectedRoute><DashboardPlateforme/></ProtectedRoute>} />
+								<Route path="/plateforme/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
+								<Route path="/plateforme/barre" element={<ProtectedRoute><Barre/></ProtectedRoute>} />
+								<Route path="/plateforme/recherche" element={<ProtectedRoute><Recherche/></ProtectedRoute>} />
+								<Route path="/plateforme/calendrier" element={<ProtectedRoute><Calendrier/></ProtectedRoute>} />
+								<Route path="/plateforme/notification" element={<ProtectedRoute><Notification/></ProtectedRoute>} />
+								<Route path="/plateforme/profil" element={<ProtectedRoute><Profil/></ProtectedRoute>} />
+								<Route path="/changer-mot-de-passe" element={<ChangerMotDePasse/>} />
+						</Routes>
+				</Router>
+		);
 }
 
 export default App;
