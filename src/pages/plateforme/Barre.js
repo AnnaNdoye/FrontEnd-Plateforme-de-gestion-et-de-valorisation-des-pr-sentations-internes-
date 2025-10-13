@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar, FaList } from 'react-icons/fa';
 import { MdDashboard } from 'react-icons/md';
@@ -337,7 +338,7 @@ const handleLogoutCancel = () => {
         </Sidebar>
         )}
 
-        {showLogoutModal && (
+        {showLogoutModal && createPortal(
         <ModalOverlay>
         <ModalContent>
             <ModalHeader>
@@ -349,13 +350,14 @@ const handleLogoutCancel = () => {
             <ModalFooter>
                 <CancelButton onClick={handleLogoutCancel} disabled={isLoggingOut}>
                 Annuler
-            </CancelButton>
+                </CancelButton>
                 <ConfirmButton onClick={handleLogoutConfirm} disabled={isLoggingOut}>
                 {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
-            </ConfirmButton>
+                </ConfirmButton>
             </ModalFooter>
         </ModalContent>
-        </ModalOverlay>
+        </ModalOverlay>,
+        document.body
     )}
     </Container>
     );

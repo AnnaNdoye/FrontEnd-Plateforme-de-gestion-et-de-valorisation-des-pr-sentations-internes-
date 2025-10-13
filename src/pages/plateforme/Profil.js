@@ -156,6 +156,13 @@ const Profil = () => {
             }
         };
         loadProfile();
+
+        // Cleanup function to revoke object URLs on unmount
+        return () => {
+            if (profile.photo && profile.photo.startsWith('blob:')) {
+                URL.revokeObjectURL(profile.photo);
+            }
+        };
     }, []);
 
     const toggleMenu = () => {
@@ -180,6 +187,10 @@ const Profil = () => {
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Revoke previous object URL to prevent memory leaks
+            if (profile.photo && profile.photo.startsWith('blob:')) {
+                URL.revokeObjectURL(profile.photo);
+            }
             const photoURL = URL.createObjectURL(file);
             setProfile((prev) => ({
                 ...prev,
