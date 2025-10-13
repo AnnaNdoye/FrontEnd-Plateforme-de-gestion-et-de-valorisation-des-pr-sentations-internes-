@@ -63,6 +63,8 @@ const SubmitButton = styled.button`
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: bold;
+    cursor: pointer;
+    width: 100%;
     `;
 
 const LinksContainer = styled.div`
