@@ -34,7 +34,6 @@ export const register = async (userData) => {
     return response.data;
 };
 
-// Profile API functions
 export const getProfile = async () => {
     const response = await api.get('/auth/profile');
     return response.data;
