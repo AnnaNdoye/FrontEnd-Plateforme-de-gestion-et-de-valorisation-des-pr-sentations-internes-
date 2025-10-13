@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar, FaList } from 'react-icons/fa';
 import { MdDashboard } from 'react-icons/md';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { logout } from '../../services/api';
 
 const shimmer = keyframes`
     0% { background-position: -200% 0; }
@@ -273,32 +274,13 @@ const Barre = () => {
     setIsLoggingOut(true);
     
     try {
-        const response = await fetch('/', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Important pour inclure les cookies de session
-        });
-
-        if (response.ok) {
-        const data = await response.json();
-        console.log(data.message);
-        
-        // Nettoyer le localStorage si vous stockez des données utilisateur
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userData');
-        
-        // Rediriger vers la page de connexion
-        navigate('/');
-        } else {
-        throw new Error('Erreur lors de la déconnexion');
-        }
+        await logout();
+        localStorage.removeItem('token');
+        navigate('/connexion');
     } catch (error) {
         console.error('Erreur de déconnexion:', error);
-      // Même en cas d'erreur, on peut rediriger vers la page de connexion
-      // car la session côté client doit être nettoyée
-        navigate('/');
+        localStorage.removeItem('token');
+        navigate('/connexion');
     } finally {
         setIsLoggingOut(false);
         setShowLogoutModal(false);

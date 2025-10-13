@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaList, FaCalendarAlt, FaBell, FaUser } from 'react-icons/fa';
-import Barre from '../plateforme/Barre';
+import Barre from './Barre';
 import Recherche from './Recherche';
 
 const Container = styled.div`

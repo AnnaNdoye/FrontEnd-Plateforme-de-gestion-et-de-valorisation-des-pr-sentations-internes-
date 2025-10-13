@@ -24,6 +24,19 @@ api.interceptors.request.use(
     }
 );
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            if (window.location.pathname.startsWith('/plateforme')) {
+                window.location.href = '/connexion';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const login = async (email, motDePasse) => {
     const response = await api.post('/auth/login', { email, motDePasse });
     return response.data;
@@ -46,6 +59,11 @@ export const updateProfile = async (profileData) => {
 
 export const requestPasswordReset = async (email) => {
     const response = await api.post('/password-reset', { email });
+    return response.data;
+};
+
+export const logout = async () => {
+    const response = await api.post('/auth/logout');
     return response.data;
 };
 

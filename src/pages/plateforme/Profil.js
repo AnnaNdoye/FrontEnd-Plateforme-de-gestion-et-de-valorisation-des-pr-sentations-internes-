@@ -257,7 +257,7 @@ const Profil = () => {
                             </InfoItem>
                             <InfoItem>
                                 <Label><FaCalendarAlt /> Date d'inscription:</Label>
-                                <Value>{new Date(profile.dateInscription).toLocaleDateString()}</Value>
+                                <Value>{profile.dateInscription}</Value>
                             </InfoItem>
                             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                                 <Button onClick={handleSave}>Sauvegarder</Button>
@@ -288,7 +288,7 @@ const Profil = () => {
                             </InfoItem>
                             <InfoItem>
                                 <Label><FaCalendarAlt /> Date d'inscription:</Label>
-                                <Value>{new Date(profile.dateInscription).toLocaleDateString()}</Value>
+                                <Value>{profile.dateInscription}</Value>
                             </InfoItem>
                             <Button onClick={toggleEdit}>Modifier le profil</Button>
                         </>

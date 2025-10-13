@@ -16,10 +16,22 @@ import Profil from "./pages/plateforme/Profil";
 import ChangerMotDePasse from "./pages/ChangerMotDePasse";
 
 function App() {
-		const isAuthenticated = !!localStorage.getItem('token');
+		const isAuthenticated = () => {
+				const token = localStorage.getItem('token');
+				if (!token) return false;
+				try {
+						const payload = JSON.parse(atob(token.split('.')[1]));
+						const currentTime = Date.now() / 1000;
+						return payload.exp > currentTime;
+				} catch (error) {
+						console.error('Invalid token:', error);
+						localStorage.removeItem('token');
+						return false;
+				}
+		};
 
 		const ProtectedRoute = ({ children }) => {
-				return isAuthenticated ? children : <Navigate to="/connexion" />;
+				return isAuthenticated() ? children : <Navigate to="/connexion" />;
 		};
 	
 		return(
