@@ -4,15 +4,7 @@ import styled from 'styled-components';
 import { FaEnvelope } from 'react-icons/fa';
 import { requestPasswordReset } from '../services/api';
 
-const MotDePasseOublie = () => {
-    const navigate = useNavigate();
-
-    const retour = () => {
-        console.log("Navigation vers /connexion");
-        navigate("/connexion");
-    };
-
-    const Form = styled.form`
+const Form = styled.form`
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
@@ -24,7 +16,7 @@ const MotDePasseOublie = () => {
     border: 1px solid rgba(255, 255, 255, 0.3);
     `;
 
-    const InputGroup = styled.div`
+const InputGroup = styled.div`
     position: relative;
     margin-bottom: 1.8rem;
     display: flex;
@@ -32,14 +24,14 @@ const MotDePasseOublie = () => {
     gap: 0.6rem;
     `;
 
-    const Label = styled.label`
+const Label = styled.label`
     font-size: 1rem;
     color: #2e7d32;
     font-weight: 600;
     margin-left: 0.5rem
     `;
 
-    const Input = styled.input`
+const Input = styled.input`
     padding: 1.1rem 1.1rem 1.1rem 3.5rem;
     border: 2px solid #e0f2e9;
     border-radius: 14px;
@@ -54,7 +46,7 @@ const MotDePasseOublie = () => {
     }
     `;
 
-    const InputIcon = styled.div`
+const InputIcon = styled.div`
     position: absolute;
     top: 50%;
     left: 1rem;
@@ -63,7 +55,7 @@ const MotDePasseOublie = () => {
     font-size: 1.2rem;
     `;
 
-    const SubmitButton = styled.button`
+const SubmitButton = styled.button`
     padding: 1.2rem 2rem;
     background-color: #FF8113;
     color: white;
@@ -73,7 +65,7 @@ const MotDePasseOublie = () => {
     font-weight: bold;
     `;
 
-    const LinksContainer = styled.div`
+const LinksContainer = styled.div`
     margin-top: 1.5rem;
     display: flex;
     justify-content: center;
@@ -81,11 +73,24 @@ const MotDePasseOublie = () => {
     color: #FF8113;
     `;
 
-    const StyledLink = styled(Link)`
+const StyledLink = styled(Link)`
     color: #FF8113;
     text-decoration: none;
     &:hover { text-decoration: underline; }
     `;
+
+const InputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+`;
+
+const MotDePasseOublie = () => {
+    const navigate = useNavigate();
+
+    const retour = () => {
+        console.log("Navigation vers /connexion");
+        navigate("/connexion");
+    };
 
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
@@ -132,15 +137,17 @@ const MotDePasseOublie = () => {
             <Form onSubmit={handleSubmit}>
                 <InputGroup>
                     <Label>E-mail</Label>
-                    <InputIcon><FaEnvelope /></InputIcon>
-                    <Input
-                        type="email"
-                        name="email"
-                        placeholder="E-mail"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
+                    <InputWrapper>
+                        <InputIcon><FaEnvelope /></InputIcon>
+                        <Input
+                            type="email"
+                            name="email"
+                            placeholder="E-mail"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </InputWrapper>
                 </InputGroup>
 
                 <SubmitButton type="submit" disabled={isLoading}>
