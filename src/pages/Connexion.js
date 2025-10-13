@@ -156,23 +156,12 @@ const Connexion = () => {
             const response = await login(email, motDePasse);
             localStorage.setItem('token', response.token);
             navigate('/plateforme/dashboard');
-        } // Remplacez dans handleSubmit :
-catch (error) {
-    let message = 'Une erreur est survenue';
-    
-    if (error.response) {
-        // Le serveur a répondu avec un code d'erreur
-        message = error.response.data.message || error.response.data || 'Erreur de connexion';
-    } else if (error.request) {
-        // La requête a été envoyée mais pas de réponse
-        message = 'Impossible de contacter le serveur';
-    } else {
-        // Erreur lors de la configuration de la requête
-        message = error.message;
-    }
-    
-    setErrorMessage(message);
-}
+        } catch (error) {
+            const message = error.response?.data?.message || error.response?.data || error.message || 'Erreur inconnue';
+            setErrorMessage(message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
