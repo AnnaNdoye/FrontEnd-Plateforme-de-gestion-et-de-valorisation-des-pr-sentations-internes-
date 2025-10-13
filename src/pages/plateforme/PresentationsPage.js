@@ -172,7 +172,7 @@ const PresentationsPage = () => {
 
   return (
     <Container>
-      {isMenuOpen && <Barre />}
+      {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
       <Content>
         <Header>
           <h1>Présentations</h1>

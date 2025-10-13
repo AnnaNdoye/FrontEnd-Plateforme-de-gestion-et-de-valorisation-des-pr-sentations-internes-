@@ -89,7 +89,7 @@ const Dashboard = () => {
 
   return (
     <Container>
-      {isMenuOpen && <Barre />}
+      <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />
       <Content>
         <Header>
           <h1>Bienvenue sur le tableau de bord</h1>

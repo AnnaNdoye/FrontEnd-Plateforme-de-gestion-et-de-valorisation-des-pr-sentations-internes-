@@ -128,16 +128,10 @@ const Button = styled.button`
 const Profil = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
-    const [profile, setProfile] = useState({
-        nom: 'Nom Utilisateur',
-        prenom: 'Prénom Utilisateur',
-        email: 'utilisateur@gmail.com',
-        poste: 'Poste Utilisateur',
-        matricule: 'Anna123456789',
-        dateInscription: new Date().toISOString(),
-        photo: null,
-    });
+
+    const [profile, setProfile] = useState({});
     const [originalProfile, setOriginalProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -151,8 +145,10 @@ const Profil = () => {
                     ...data,
                     photo: data.photoUrl || null,
                 });
+                setLoading(false);
             } catch (error) {
                 console.error('Failed to load profile:', error);
+                setLoading(false);
             }
         };
         loadProfile();
@@ -195,7 +191,8 @@ const Profil = () => {
             const photoURL = URL.createObjectURL(file);
             setProfile((prev) => ({
                 ...prev,
-                photo: photoURL,
+                photo: file, // Store the File object for upload
+                photoPreview: photoURL, // Store the preview URL for display
             }));
         }
     };
@@ -208,89 +205,108 @@ const Profil = () => {
                 email: profile.email,
                 poste: profile.poste,
                 matricule: profile.matricule,
-                photoUrl: profile.photo,
+                photo: profile.photo instanceof File ? profile.photo : null,
             };
-            await updateProfile(updatedData);
+            const response = await updateProfile(updatedData);
+            setProfile({
+                ...response,
+                photo: response.photoUrl || null,
+            });
+            setOriginalProfile({
+                ...response,
+                photo: response.photoUrl || null,
+            });
             setIsEditing(false);
-            setOriginalProfile({ ...profile });
         } catch (error) {
             console.error('Failed to save profile:', error);
         }
     };
 
     const handleCancel = () => {
+        // Revoke any preview URL if canceling
+        if (profile.photoPreview) {
+            URL.revokeObjectURL(profile.photoPreview);
+        }
         setProfile({ ...originalProfile });
         setIsEditing(false);
     };
     
     return (
         <Container>
-            {isMenuOpen && <Barre />}
+            {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
             <Content>
                 <Header>
                     <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
                 </Header>
                 <ProfileCard>
-                    <ProfileImage src={profile.photo ? profile.photo : defaultProfileImage} alt="Photo de profil" />
-                    {isEditing ? (
-                        <>
-                            <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ marginBottom: '1rem', cursor: 'pointer', borderRadius: '8px', padding: '0.5rem', border: '2px solid #ff8113' }} />
-                            <InfoItem>
-                                <Label><FaUser /> Nom:</Label>
-                                <Input name="nom" value={profile.nom} onChange={handleChange} />
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaUser /> Prénom:</Label>
-                                <Input name="prenom" value={profile.prenom} onChange={handleChange} />
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaEnvelope /> Email:</Label>
-                                <Input name="email" value={profile.email} onChange={handleChange} />
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaBriefcase /> Poste:</Label>
-                                <Input name="poste" value={profile.poste} onChange={handleChange} />
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaIdCard /> Matricule:</Label>
-                                <Input name="matricule" value={profile.matricule} onChange={handleChange} />
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaCalendarAlt /> Date d'inscription:</Label>
-                                <Value>{profile.dateInscription}</Value>
-                            </InfoItem>
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                                <Button onClick={handleSave}>Sauvegarder</Button>
-                                <Button onClick={handleCancel} style={{ background: 'linear-gradient(45deg, #ccc, #999)' }}>Annuler</Button>
-                            </div>
-                        </>
+                    {loading ? (
+                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                            <p>Chargement du profil...</p>
+                        </div>
                     ) : (
                         <>
-                            <InfoItem>
-                                <Label><FaUser /> Nom:</Label>
-                                <Value>{profile.nom}</Value>
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaUser /> Prénom:</Label>
-                                <Value>{profile.prenom}</Value>
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaEnvelope /> Email:</Label>
-                                <Value>{profile.email}</Value>
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaBriefcase /> Poste:</Label>
-                                <Value>{profile.poste}</Value>
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaIdCard /> Matricule:</Label>
-                                <Value>{profile.matricule}</Value>
-                            </InfoItem>
-                            <InfoItem>
-                                <Label><FaCalendarAlt /> Date d'inscription:</Label>
-                                <Value>{profile.dateInscription}</Value>
-                            </InfoItem>
-                            <Button onClick={toggleEdit}>Modifier le profil</Button>
+                            <ProfileImage src={profile.photoPreview || profile.photo || defaultProfileImage} alt="Photo de profil" />
+                            {isEditing ? (
+                                <>
+                                    <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ marginBottom: '1rem', cursor: 'pointer', borderRadius: '8px', padding: '0.5rem', border: '2px solid #ff8113' }} />
+                                    <InfoItem>
+                                        <Label><FaUser /> Nom:</Label>
+                                        <Input name="nom" value={profile.nom} onChange={handleChange} />
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaUser /> Prénom:</Label>
+                                        <Input name="prenom" value={profile.prenom} onChange={handleChange} />
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaEnvelope /> Email:</Label>
+                                        <Input name="email" value={profile.email} onChange={handleChange} />
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaBriefcase /> Poste:</Label>
+                                        <Input name="poste" value={profile.poste} onChange={handleChange} />
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaIdCard /> Matricule:</Label>
+                                        <Input name="matricule" value={profile.matricule} onChange={handleChange} />
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaCalendarAlt /> Date d'inscription:</Label>
+                                        <Value>{profile.dateInscription}</Value>
+                                    </InfoItem>
+                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                        <Button onClick={handleSave}>Sauvegarder</Button>
+                                        <Button onClick={handleCancel} style={{ background: 'linear-gradient(45deg, #ccc, #999)' }}>Annuler</Button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <InfoItem>
+                                        <Label><FaUser /> Nom:</Label>
+                                        <Value>{profile.nom}</Value>
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaUser /> Prénom:</Label>
+                                        <Value>{profile.prenom}</Value>
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaEnvelope /> Email:</Label>
+                                        <Value>{profile.email}</Value>
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaBriefcase /> Poste:</Label>
+                                        <Value>{profile.poste}</Value>
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaIdCard /> Matricule:</Label>
+                                        <Value>{profile.matricule}</Value>
+                                    </InfoItem>
+                                    <InfoItem>
+                                        <Label><FaCalendarAlt /> Date d'inscription:</Label>
+                                        <Value>{profile.dateInscription}</Value>
+                                    </InfoItem>
+                                    <Button onClick={toggleEdit}>Modifier le profil</Button>
+                                </>
+                            )}
                         </>
                     )}
                 </ProfileCard>

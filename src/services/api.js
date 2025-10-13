@@ -53,7 +53,21 @@ export const getProfile = async () => {
 };
 
 export const updateProfile = async (profileData) => {
-    const response = await api.put('/profile', profileData);
+    const formData = new FormData();
+    formData.append('nom', profileData.nom);
+    formData.append('prenom', profileData.prenom);
+    formData.append('email', profileData.email);
+    formData.append('poste', profileData.poste);
+    formData.append('matricule', profileData.matricule);
+    if (profileData.photo && profileData.photo instanceof File) {
+        formData.append('photo', profileData.photo);
+    }
+
+    const response = await api.put('/auth/profile', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;
 };
 

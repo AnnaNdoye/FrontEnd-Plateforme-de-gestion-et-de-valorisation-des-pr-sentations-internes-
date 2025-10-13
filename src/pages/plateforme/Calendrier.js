@@ -172,6 +172,7 @@ const Calendrier = () => {
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState(true);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -306,7 +307,7 @@ const Calendrier = () => {
 
   return (
     <Container>
-      {isMenuOpen && <Barre />}
+      {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
       <Content>
         <Header>
           <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />

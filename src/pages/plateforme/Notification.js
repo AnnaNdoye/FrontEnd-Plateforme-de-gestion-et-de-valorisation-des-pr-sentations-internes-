@@ -79,7 +79,7 @@ const Notification = () => {
 
     return (
         <Container>
-        {isMenuOpen && <Barre />}
+        {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
         <Content>
             <Header>
                 <h1>Les notifications</h1>

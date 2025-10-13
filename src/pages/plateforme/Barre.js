@@ -232,16 +232,11 @@ const ConfirmButton = styled.button`
 }
 `;
 
-const Barre = () => {
+const Barre = ({ isMenuOpen, onToggleMenu }) => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-
-    const [isMenuOpen, setIsMenuOpen] = useState(true);
-    const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    };
 
     // Close modal on component unmount to prevent DOM errors
     useEffect(() => {
@@ -303,7 +298,7 @@ const handleLogoutCancel = () => {
         <Sidebar>
         <LogoContainer>
             <FaLeaf />
-            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#FFD700' }} />
+            <FaList onClick={onToggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#FFD700' }} />
             <h2>Presentation</h2>
         </LogoContainer>
         <NavItem active={activeTab === 'dashboard'} onClick={() => handleNavigation('/plateforme/dashboard')}>
