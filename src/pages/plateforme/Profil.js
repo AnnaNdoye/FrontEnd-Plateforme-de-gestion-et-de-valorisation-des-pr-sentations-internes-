@@ -153,7 +153,6 @@ const Profil = () => {
                 });
             } catch (error) {
                 console.error('Failed to load profile:', error);
-                // Keep default values
             }
         };
         loadProfile();
@@ -166,7 +165,6 @@ const Profil = () => {
     const toggleEdit = () => {
         setIsEditing(!isEditing);
         if (!isEditing) {
-            // Entering edit mode, save original
             setOriginalProfile({ ...profile });
         }
     };
@@ -198,14 +196,13 @@ const Profil = () => {
                 email: profile.email,
                 poste: profile.poste,
                 matricule: profile.matricule,
-                photoUrl: profile.photo, // For now, send the URL, but ideally upload file
+                photoUrl: profile.photo,
             };
             await updateProfile(updatedData);
             setIsEditing(false);
             setOriginalProfile({ ...profile });
         } catch (error) {
             console.error('Failed to save profile:', error);
-            // Handle error, maybe show message
         }
     };
 
