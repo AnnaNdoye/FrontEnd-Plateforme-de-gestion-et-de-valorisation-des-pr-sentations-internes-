@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaEnvelope } from 'react-icons/fa';
 import { requestPasswordReset } from '../services/api';
@@ -59,7 +59,7 @@ const InputIcon = styled.div`
     transform: translateY(-50%);
     color: #FF8113;
     font-size: 1.2rem;
-    `;
+`;
 
 const SubmitButton = styled.button`
     padding: 1.2rem 2rem;
@@ -71,23 +71,9 @@ const SubmitButton = styled.button`
     font-weight: bold;
     cursor: pointer;
     width: 100%;
-    `;
+`;
 
-const LinksContainer = styled.div`
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: center;
-    font-size: 0.9rem;
-    color: #FF8113;
-    `;
-
-const StyledLink = styled(Link)`
-    color: #FF8113;
-    text-decoration: none;
-    &:hover { text-decoration: underline; }
-    `;
-
-const MotDePasseOublie = () => {
+const ChangerMotDePasse = () => {
     const navigate = useNavigate();
 
     const retour = () => {
