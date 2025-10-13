@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 import { FaLeaf, FaUser, FaBell, FaSignOutAlt, FaCalendar, FaList } from 'react-icons/fa';
@@ -241,6 +241,13 @@ const Barre = () => {
     const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     };
+
+    // Close modal on component unmount to prevent DOM errors
+    useEffect(() => {
+        return () => {
+            setShowLogoutModal(false);
+        };
+    }, []);
 
     const getActiveTab = () => {
     const path = location.pathname;
