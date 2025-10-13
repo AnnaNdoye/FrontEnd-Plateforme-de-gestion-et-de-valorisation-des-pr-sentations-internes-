@@ -155,7 +155,7 @@ const Connexion = () => {
         try {
             const response = await login(email, motDePasse);
             localStorage.setItem('token', response.token);
-            navigate('/plateforme');
+            navigate('/plateforme/dashboard');
         } catch (error) {
             const message = error.response?.data?.message || error.response?.data || error.message || 'Erreur inconnue';
             setErrorMessage(message);

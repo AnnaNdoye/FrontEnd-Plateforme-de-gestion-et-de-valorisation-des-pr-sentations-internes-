@@ -11,7 +11,6 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Interceptor to add JWT token to requests
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
