@@ -40,7 +40,7 @@ export const register = async (userData) => {
 
 // Profile API functions
 export const getProfile = async () => {
-    const response = await api.get('/profile');
+    const response = await api.get('/auth/profile');
     return response.data;
 };
 
