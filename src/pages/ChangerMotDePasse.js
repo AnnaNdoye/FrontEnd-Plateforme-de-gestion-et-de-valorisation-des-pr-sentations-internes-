@@ -81,7 +81,7 @@ const ChangerMotDePasse = () => {
         navigate("/connexion");
     };
 
-    const [email, setEmail] = useState('');
+    const [motDePasse, setmotDePasse] = useState('');
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -90,7 +90,7 @@ const ChangerMotDePasse = () => {
         setIsLoading(true);
         setMessage('');
         try {
-            await requestPasswordReset(email);
+            await requestPasswordReset(motDePasse);
             setMessage('Un e-mail de réinitialisation a été envoyé à votre adresse.');
         } catch (error) {
             setMessage('Erreur : ' + (error.response?.data || error.message));
@@ -125,15 +125,15 @@ const ChangerMotDePasse = () => {
 
             <Form onSubmit={handleSubmit}>
                 <InputGroup>
-                    <Label>E-mail</Label>
+                    <Label>Mot de passe</Label>
                     <InputWrapper>
                         <InputIcon><FaEnvelope /></InputIcon>
                         <Input
                             type="password"
                             name="motDePasse"
                             placeholder="Votre nouveau mot de passe"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={motDePasse}
+                            onChange={(e) => setmotDePasse(e.target.value)}
                             required
                         />
                     </InputWrapper>
