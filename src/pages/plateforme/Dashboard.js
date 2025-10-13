@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaList, FaCalendarAlt, FaBell, FaUser } from 'react-icons/fa';
@@ -79,6 +79,7 @@ const Dashboard = () => {
     { icon: <FaCalendarAlt />, title: 'Voir le calendrier', path: '/plateforme/calendrier' },
     { icon: <FaBell />, title: 'Notifications', path: '/plateforme/notification' },
     { icon: <FaUser />, title: 'Profil', path: '/plateforme/profil' },
+    { icon: <FaList />, title: 'Présentations', path: '/plateforme/presentations' },
   ];
 
   const stats = [

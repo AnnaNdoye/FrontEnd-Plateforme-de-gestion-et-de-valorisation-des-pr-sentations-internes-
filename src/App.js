@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 
-//import DepartementsPage from "./pages/DepartementsPage";
+import DepartementsPage from "./pages/DepartementsPage";
 import PageAccueil from "./pages/PageAccueil";
 import Connexion from "./pages/Connexion";
 import Inscription from "./pages/Inscription";
@@ -13,6 +13,7 @@ import Recherche from "./pages/plateforme/Recherche";
 import Calendrier from "./pages/plateforme/Calendrier";
 import Notification from "./pages/plateforme/Notification";
 import Profil from "./pages/plateforme/Profil";
+import PresentationsPage from "./pages/plateforme/PresentationsPage";
 import ChangerMotDePasse from "./pages/ChangerMotDePasse";
 
 function App() {
@@ -49,6 +50,8 @@ function App() {
 								<Route path="/plateforme/calendrier" element={<ProtectedRoute><Calendrier/></ProtectedRoute>} />
 								<Route path="/plateforme/notification" element={<ProtectedRoute><Notification/></ProtectedRoute>} />
 								<Route path="/plateforme/profil" element={<ProtectedRoute><Profil/></ProtectedRoute>} />
+								<Route path="/plateforme/presentations" element={<ProtectedRoute><PresentationsPage/></ProtectedRoute>} />
+								<Route path="/plateforme/departements" element={<ProtectedRoute><DepartementsPage/></ProtectedRoute>} />
 								<Route path="/changer-mot-de-passe" element={<ChangerMotDePasse/>} />
 						</Routes>
 				</Router>

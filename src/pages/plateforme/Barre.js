@@ -257,6 +257,7 @@ const Barre = () => {
     if (path.includes('/plateforme/profil')) return 'profil';
     if (path.includes('/plateforme/dashboard')) return 'dashboard';
     if (path.includes('/plateforme/notifications')) return 'notifications';
+    if (path.includes('/plateforme/presentations')) return 'presentations';
     return 'dashboard';
     };
 
@@ -319,6 +320,10 @@ const handleLogoutCancel = () => {
 
         <NavItem active={activeTab === 'profil'} onClick={() => handleNavigation('/plateforme/profil')}>
             <FaUser /> Profil
+        </NavItem>
+
+        <NavItem active={activeTab === 'presentations'} onClick={() => handleNavigation('/plateforme/presentations')}>
+            <FaList /> Présentations
         </NavItem>
 
         <LogoutButton onClick={handleLogoutClick}>
