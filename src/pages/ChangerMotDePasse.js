@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaEnvelope } from 'react-icons/fa';
+import { FaLock } from 'react-icons/fa';
 import { requestPasswordReset } from '../services/api';
 
 const Form = styled.form`
@@ -127,7 +127,7 @@ const ChangerMotDePasse = () => {
                 <InputGroup>
                     <Label>Mot de passe</Label>
                     <InputWrapper>
-                        <InputIcon><FaEnvelope /></InputIcon>
+                        <InputIcon><FaLock /></InputIcon>
                         <Input
                             type="password"
                             name="motDePasse"
