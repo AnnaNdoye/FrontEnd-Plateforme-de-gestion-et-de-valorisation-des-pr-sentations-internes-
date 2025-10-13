@@ -14,7 +14,7 @@ const Form = styled.form`
     box-shadow: 0 12px 40px rgba(76, 175, 80, 0.15);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    `;
+`;
 
 const InputGroup = styled.div`
     position: relative;
@@ -22,16 +22,22 @@ const InputGroup = styled.div`
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
-    `;
+`;
 
 const Label = styled.label`
     font-size: 1rem;
     color: #2e7d32;
     font-weight: 600;
     margin-left: 0.5rem
-    `;
+`;
+
+const InputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+`;
 
 const Input = styled.input`
+    width: 100%;
     padding: 1.1rem 1.1rem 1.1rem 3.5rem;
     border: 2px solid #e0f2e9;
     border-radius: 14px;
@@ -44,7 +50,7 @@ const Input = styled.input`
         box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
         background-color: white;
     }
-    `;
+`;
 
 const InputIcon = styled.div`
     position: absolute;
@@ -80,11 +86,6 @@ const StyledLink = styled(Link)`
     text-decoration: none;
     &:hover { text-decoration: underline; }
     `;
-
-const InputWrapper = styled.div`
-    position: relative;
-    width: 100%;
-`;
 
 const MotDePasseOublie = () => {
     const navigate = useNavigate();
@@ -144,7 +145,7 @@ const MotDePasseOublie = () => {
                         <Input
                             type="email"
                             name="email"
-                            placeholder="E-mail"
+                            placeholder="Votre adresse email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
