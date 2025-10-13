@@ -24,9 +24,6 @@ api.interceptors.request.use(
     }
 );
 
-export default api;
-
-// Auth API functions
 export const login = async (email, motDePasse) => {
     const response = await api.post('/auth/login', { email, motDePasse });
     return response.data;
@@ -52,6 +49,8 @@ export const requestPasswordReset = async (email) => {
     const response = await api.post('/password-reset', { email });
     return response.data;
 };
+
+export default api;
 
 // Explication détaillé du code api.js
 // on importe la librairie axios pour faire des requêtes HTTP
