@@ -157,7 +157,6 @@ const Profil = () => {
         };
         loadProfile();
 
-        // Cleanup function to revoke object URLs on unmount
         return () => {
             if (profile.photo && profile.photo.startsWith('blob:')) {
                 URL.revokeObjectURL(profile.photo);
