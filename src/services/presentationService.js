@@ -1,23 +1,6 @@
-import axios from 'axios';
+import { apiClient } from './api';
 
-const API_BASE_URL = 'http://localhost:8080/api/presentations';
-
-// Configuration d'axios avec le token JWT
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'multipart/form-data'
-  };
-};
-
-const getAuthHeadersJSON = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  };
-};
+const BASE_URL = '/presentations';
 
 class PresentationService {
 
@@ -25,9 +8,9 @@ class PresentationService {
   async createPresentation(presentationData, fichiers = []) {
     try {
       const formData = new FormData();
+      const userId = localStorage.getItem('userId');
 
-      // Ajouter les données de base
-      formData.append('idUtilisateur', presentationData.idUtilisateur);
+      formData.append('idUtilisateur', userId);
       formData.append('datePresentation', presentationData.datePresentation);
       formData.append('heureDebut', presentationData.heureDebut);
       formData.append('heureFin', presentationData.heureFin);
@@ -38,20 +21,21 @@ class PresentationService {
         formData.append('description', presentationData.description);
       }
 
-      // Ajouter les fichiers
       if (fichiers && fichiers.length > 0) {
-        fichiers.forEach((file, index) => {
+        fichiers.forEach((file) => {
           formData.append('fichiers', file);
         });
       }
 
-      const response = await axios.post(`${API_BASE_URL}/create`, formData, {
-        headers: getAuthHeaders()
+      const response = await apiClient.post(`${BASE_URL}/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la création de la présentation:', error);
+      console.error('Erreur lors de la création:', error);
       throw error;
     }
   }
@@ -59,12 +43,10 @@ class PresentationService {
   // Obtenir toutes les présentations
   async getAllPresentations() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/all`, {
-        headers: getAuthHeadersJSON()
-      });
+      const response = await apiClient.get(`${BASE_URL}/all`);
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la récupération des présentations:', error);
+      console.error('Erreur lors de la récupération:', error);
       throw error;
     }
   }
@@ -72,25 +54,45 @@ class PresentationService {
   // Obtenir une présentation par ID
   async getPresentationById(id) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${id}`, {
-        headers: getAuthHeadersJSON()
-      });
+      const response = await apiClient.get(`${BASE_URL}/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la récupération de la présentation:', error);
+      console.error('Erreur:', error);
       throw error;
     }
   }
 
-  // Obtenir les présentations de l'utilisateur connecté
+  // Obtenir mes présentations
   async getMyPresentations() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/my`, {
-        headers: getAuthHeadersJSON()
+      const response = await apiClient.get(`${BASE_URL}/my`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur:', error);
+      throw error;
+    }
+  }
+
+  // Obtenir présentations par statut
+  async getPresentationsByStatut(statut) {
+    try {
+      const response = await apiClient.get(`${BASE_URL}/statut/${statut}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur:', error);
+      throw error;
+    }
+  }
+
+  // Obtenir présentations par période
+  async getPresentationsByPeriod(startDate, endDate) {
+    try {
+      const response = await apiClient.get(`${BASE_URL}/period`, {
+        params: { startDate, endDate }
       });
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la récupération de mes présentations:', error);
+      console.error('Erreur:', error);
       throw error;
     }
   }
@@ -99,8 +101,9 @@ class PresentationService {
   async updatePresentation(id, presentationData, fichiers = []) {
     try {
       const formData = new FormData();
+      const userId = localStorage.getItem('userId');
 
-      formData.append('idUtilisateur', presentationData.idUtilisateur);
+      formData.append('idUtilisateur', userId);
       formData.append('datePresentation', presentationData.datePresentation);
       formData.append('heureDebut', presentationData.heureDebut);
       formData.append('heureFin', presentationData.heureFin);
@@ -112,18 +115,20 @@ class PresentationService {
       }
 
       if (fichiers && fichiers.length > 0) {
-        fichiers.forEach((file, index) => {
+        fichiers.forEach((file) => {
           formData.append('fichiers', file);
         });
       }
 
-      const response = await axios.put(`${API_BASE_URL}/${id}`, formData, {
-        headers: getAuthHeaders()
+      const response = await apiClient.put(`${BASE_URL}/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de la présentation:', error);
+      console.error('Erreur lors de la mise à jour:', error);
       throw error;
     }
   }
@@ -131,12 +136,10 @@ class PresentationService {
   // Supprimer une présentation
   async deletePresentation(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${id}`, {
-        headers: getAuthHeadersJSON()
-      });
+      const response = await apiClient.delete(`${BASE_URL}/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la suppression de la présentation:', error);
+      console.error('Erreur lors de la suppression:', error);
       throw error;
     }
   }
@@ -144,41 +147,77 @@ class PresentationService {
   // Rechercher des présentations
   async searchPresentations(term) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/search`, {
-        params: { term },
-        headers: getAuthHeadersJSON()
+      const response = await apiClient.get(`${BASE_URL}/search`, {
+        params: { term }
       });
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la recherche de présentations:', error);
+      console.error('Erreur lors de la recherche:', error);
       throw error;
     }
   }
 
-  // Formater les données pour le calendrier
+  // Obtenir statistiques d'une présentation
+  async getPresentationStats(id) {
+    try {
+      const response = await apiClient.get(`${BASE_URL}/${id}/stats`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur:', error);
+      throw error;
+    }
+  }
+
+  // Formater les présentations pour le calendrier
   formatPresentationsForCalendar(presentations) {
-    return presentations.map(presentation => ({
-      id: presentation.idPresentation,
-      title: presentation.sujet,
-      start: presentation.heureDebut,
-      end: presentation.heureFin,
-      description: presentation.description,
-      statut: presentation.statut,
-      utilisateur: presentation.utilisateur
-    }));
+    return presentations.map(presentation => {
+      // Créer des objets Date à partir des chaînes ISO
+      const startDate = new Date(presentation.heureDebut);
+      const endDate = new Date(presentation.heureFin);
+
+      return {
+        id: presentation.idPresentation,
+        title: presentation.sujet,
+        start: startDate,
+        end: endDate,
+        description: presentation.description,
+        status: presentation.statut,
+        subject: presentation.sujet,
+        datePresentation: presentation.datePresentation,
+        heureDebut: presentation.heureDebut,
+        heureFin: presentation.heureFin,
+        statut: presentation.statut,
+        utilisateur: presentation.utilisateur,
+        fichier: presentation.fichier,
+        // Couleur selon le statut
+        style: {
+          backgroundColor: this.getStatusColor(presentation.statut)
+        }
+      };
+    });
+  }
+
+  // Obtenir la couleur selon le statut
+  getStatusColor(statut) {
+    const colors = {
+      'Planifié': '#FF8C42',
+      'Confirmé': '#28a745',
+      'Terminé': '#007bff',
+      'Annulé': '#dc3545'
+    };
+    return colors[statut] || '#FF8C42';
   }
 
   // Obtenir les statuts disponibles
   getStatuts() {
     return [
-      { value: 'Planifié', label: 'Planifié' },
-      { value: 'Annulé', label: 'Annulé' },
-      { value: 'Confirmé', label: 'Confirmé' },
-      { value: 'Terminé', label: 'Terminé' }
+      { value: 'Planifié', label: 'Planifié', color: '#FF8C42' },
+      { value: 'Confirmé', label: 'Confirmé', color: '#28a745' },
+      { value: 'Terminé', label: 'Terminé', color: '#007bff' },
+      { value: 'Annulé', label: 'Annulé', color: '#dc3545' }
     ];
   }
 }
 
 const presentationService = new PresentationService();
-
 export default presentationService;

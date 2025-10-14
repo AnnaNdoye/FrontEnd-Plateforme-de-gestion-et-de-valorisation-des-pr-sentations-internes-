@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FaList, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaList, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaEdit, FaTrash, FaPlus, FaDownload, FaStar } from 'react-icons/fa';
 import Barre from './Barre';
 import Recherche from './Recherche';
 import presentationService from '../../services/presentationService';
+import voteService from '../../services/voteService';
+import commentaireService from '../../services/commentaireService';
 
 const Container = styled.div`
   display: flex;
+  min-height: 100vh;
   background: linear-gradient(135deg, #FFF8F0 0%, #e6dfd9ff 100%);
 `;
 
@@ -44,6 +47,10 @@ const StatusHeader = styled.div`
   font-size: 1.2rem;
   font-weight: bold;
   color: #FF6B1A;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid ${props => props.color || '#FF8C42'};
 `;
 
 const PresentationList = styled.div`
@@ -54,18 +61,17 @@ const PresentationList = styled.div`
 const PresentationCard = styled.div`
   background: white;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border-left: 4px solid ${props => {
-    switch(props.status) {
-      case 'Planifié': return '#FF8C42';
-      case 'Confirmé': return '#28a745';
-      case 'Terminé': return '#007bff';
-      case 'Annulé': return '#dc3545';
-      default: return '#FF8C42';
-    }
-  }};
+  border-left: 4px solid ${props => props.statusColor};
   position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+    transform: translateY(-2px);
+  }
 `;
 
 const CardActions = styled.div`
@@ -80,49 +86,94 @@ const ActionButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 3px;
+  padding: 8px;
+  border-radius: 4px;
   color: #666;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${props => props.danger ? '#ffebee' : '#f0f0f0'};
     color: ${props => props.danger ? '#dc3545' : '#FF8C42'};
+  }
+
+  svg {
+    font-size: 1.1rem;
   }
 `;
 
 const PresentationTitle = styled.h3`
   margin: 0 0 0.5rem 0;
   color: #333;
+  padding-right: 80px;
 `;
 
-const PresentationDetails = styled.div`
+const PresentationInfo = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
 `;
 
-const PresentationDate = styled.span`
+const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #666;
   font-size: 0.9rem;
+
+  strong {
+    color: #333;
+  }
 `;
 
 const PresentationStatus = styled.span`
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
   font-weight: bold;
   color: white;
-  background-color: ${props => {
-    switch(props.status) {
-      case 'Planifié': return '#FF8C42';
-      case 'Confirmé': return '#28a745';
-      case 'Terminé': return '#007bff';
-      case 'Annulé': return '#dc3545';
-      default: return '#FF8C42';
-    }
-  }};
+  background-color: ${props => props.statusColor};
+  display: inline-block;
+`;
+
+const StatsRow = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+`;
+
+const StatBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: #f0f0f0;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #666;
+
+  svg {
+    color: #FFD700;
+  }
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: white;
+  border-radius: 8px;
+
+  svg {
+    font-size: 3rem;
+    color: #FF8C42;
+    margin-bottom: 1rem;
+  }
 `;
 
 const PresentationsPage = () => {
@@ -130,10 +181,9 @@ const PresentationsPage = () => {
   const [filteredPresentations, setFilteredPresentations] = useState([]);
   const [presentations, setPresentations] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const [showForm, setShowForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedPresentation, setSelectedPresentation] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [editingPresentation, setEditingPresentation] = useState(null);
   const [formData, setFormData] = useState({
     sujet: '',
@@ -144,36 +194,41 @@ const PresentationsPage = () => {
     statut: 'Planifié',
     fichiers: []
   });
+  const [presentationStats, setPresentationStats] = useState({});
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Load presentations on component mount
   useEffect(() => {
-    const loadPresentations = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.error('No token found');
-          return;
-        }
-
-
-
-        const data = await presentationService.getMyPresentations();
-        setPresentations(data);
-        setFilteredPresentations(data);
-      } catch (error) {
-        console.error('Erreur lors du chargement des présentations:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadPresentations();
   }, []);
+
+  const loadPresentations = async () => {
+    try {
+      setLoading(true);
+      const data = await presentationService.getAllPresentations();
+      setPresentations(data);
+      setFilteredPresentations(data);
+
+      // Charger les stats pour chaque présentation
+      const statsPromises = data.map(p =>
+        presentationService.getPresentationStats(p.idPresentation)
+          .then(stats => ({ id: p.idPresentation, stats }))
+          .catch(() => ({ id: p.idPresentation, stats: { nombreVotes: 0, moyenneVotes: 0, nombreCommentaires: 0 } }))
+      );
+      const statsResults = await Promise.all(statsPromises);
+      const statsMap = {};
+      statsResults.forEach(({ id, stats }) => {
+        statsMap[id] = stats;
+      });
+      setPresentationStats(statsMap);
+    } catch (error) {
+      console.error('Erreur lors du chargement des présentations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (term) => {
     if (term === '') {
@@ -181,12 +236,13 @@ const PresentationsPage = () => {
     } else {
       setFilteredPresentations(presentations.filter(p =>
         p.sujet.toLowerCase().includes(term.toLowerCase()) ||
-        (p.description && p.description.toLowerCase().includes(term.toLowerCase()))
+        (p.description && p.description.toLowerCase().includes(term.toLowerCase())) ||
+        (p.utilisateur &&
+          (`${p.utilisateur.prenom} ${p.utilisateur.nom}`.toLowerCase().includes(term.toLowerCase()) ||
+           p.utilisateur.departement.toLowerCase().includes(term.toLowerCase())))
       ));
     }
   };
-
-  // Remove dummy data - now loaded from API
 
   const getStatusIcon = (status) => {
     switch(status) {
@@ -196,6 +252,16 @@ const PresentationsPage = () => {
       case 'Annulé': return <FaTimesCircle />;
       default: return <FaCalendarAlt />;
     }
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      'Planifié': '#FF8C42',
+      'Confirmé': '#28a745',
+      'Terminé': '#007bff',
+      'Annulé': '#dc3545'
+    };
+    return colors[status] || '#FF8C42';
   };
 
   const groupedPresentations = filteredPresentations.reduce((acc, presentation) => {
@@ -211,7 +277,18 @@ const PresentationsPage = () => {
   const formatTime = (timeStr) => {
     if (!timeStr) return '';
     const date = new Date(timeStr);
-    return date.toTimeString().slice(0, 5);
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   const openDetails = (presentation) => {
@@ -225,8 +302,8 @@ const PresentationsPage = () => {
       sujet: presentation.sujet,
       description: presentation.description || '',
       datePresentation: presentation.datePresentation,
-      heureDebut: formatTime(presentation.heureDebut),
-      heureFin: formatTime(presentation.heureFin),
+      heureDebut: formatTimeForInput(presentation.heureDebut),
+      heureFin: formatTimeForInput(presentation.heureFin),
       statut: presentation.statut,
       fichiers: []
     });
@@ -234,13 +311,22 @@ const PresentationsPage = () => {
     setShowModal(false);
   };
 
+  const formatTimeForInput = (timeStr) => {
+    if (!timeStr) return '';
+    const date = new Date(timeStr);
+    const year = String(date.getFullYear());
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleDelete = async (presentation) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette présentation ?')) {
       try {
         await presentationService.deletePresentation(presentation.idPresentation);
-        const data = await presentationService.getMyPresentations();
-        setPresentations(data);
-        setFilteredPresentations(data);
+        await loadPresentations();
         if (selectedPresentation && selectedPresentation.idPresentation === presentation.idPresentation) {
           setShowModal(false);
           setSelectedPresentation(null);
@@ -257,15 +343,28 @@ const PresentationsPage = () => {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }
+
     try {
+      const heureDebut = formData.heureDebut.includes('T')
+        ? formData.heureDebut + ':00'
+        : `${formData.datePresentation}T${formData.heureDebut}:00`;
+      const heureFin = formData.heureFin.includes('T')
+        ? formData.heureFin + ':00'
+        : `${formData.datePresentation}T${formData.heureFin}:00`;
+
+      const dataToSend = {
+        ...formData,
+        heureDebut,
+        heureFin
+      };
+
       if (editingPresentation) {
-        await presentationService.updatePresentation(editingPresentation.idPresentation, formData);
+        await presentationService.updatePresentation(editingPresentation.idPresentation, dataToSend, formData.fichiers);
       } else {
-        await presentationService.createPresentation(formData);
+        await presentationService.createPresentation(dataToSend, formData.fichiers);
       }
-      const data = await presentationService.getMyPresentations();
-      setPresentations(data);
-      setFilteredPresentations(data);
+
+      await loadPresentations();
       setShowForm(false);
       setEditingPresentation(null);
       setFormData({
@@ -279,7 +378,7 @@ const PresentationsPage = () => {
       });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      alert('Erreur lors de la sauvegarde de la présentation');
+      alert('Erreur lors de la sauvegarde de la présentation: ' + (error.response?.data?.error || error.message));
     }
   };
 
@@ -297,6 +396,10 @@ const PresentationsPage = () => {
     setShowForm(true);
   };
 
+  const downloadFile = (fileName) => {
+    window.open(`http://localhost:8080/uploads/presentations/${fileName}`, '_blank');
+  };
+
   return (
     <Container>
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
@@ -304,10 +407,21 @@ const PresentationsPage = () => {
         <Header>
           <h1>Présentations</h1>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button onClick={handleNewPresentation} style={{ padding: '8px 16px', backgroundColor: '#FF8C42', color: 'white', border: 'none', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <button onClick={handleNewPresentation} style={{
+              padding: '8px 16px',
+              backgroundColor: '#FF8C42',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}>
               <FaPlus /> Nouvelle
             </button>
-            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
+            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
           </div>
         </Header>
 
@@ -320,72 +434,203 @@ const PresentationsPage = () => {
             {statusOrder.map(status => (
               groupedPresentations[status] && (
                 <StatusSection key={status}>
-                  <StatusHeader>
+                  <StatusHeader color={getStatusColor(status)}>
                     {getStatusIcon(status)}
                     {status} ({groupedPresentations[status].length})
                   </StatusHeader>
                   <PresentationList>
-                    {groupedPresentations[status].map(presentation => (
-                      <PresentationCard key={presentation.idPresentation} status={status} onClick={() => openDetails(presentation)}>
-                        <CardActions>
-                          <ActionButton onClick={(e) => { e.stopPropagation(); handleEdit(presentation); }}>
-                            <FaEdit />
-                          </ActionButton>
-                          <ActionButton danger onClick={(e) => { e.stopPropagation(); handleDelete(presentation); }}>
-                            <FaTrash />
-                          </ActionButton>
-                        </CardActions>
-                        <PresentationTitle>{presentation.sujet}</PresentationTitle>
-                        <p>{presentation.description}</p>
-                        <PresentationDetails>
-                          <PresentationDate>
-                            {presentation.datePresentation} à {formatTime(presentation.heureDebut)} - {formatTime(presentation.heureFin)}
-                          </PresentationDate>
-                          <PresentationStatus status={status}>
-                            {status}
-                          </PresentationStatus>
-                        </PresentationDetails>
-                      </PresentationCard>
-                    ))}
+                    {groupedPresentations[status].map(presentation => {
+                      const stats = presentationStats[presentation.idPresentation] || { nombreVotes: 0, moyenneVotes: 0, nombreCommentaires: 0 };
+                      return (
+                        <PresentationCard
+                          key={presentation.idPresentation}
+                          statusColor={getStatusColor(status)}
+                          onClick={() => openDetails(presentation)}
+                        >
+                          <CardActions>
+                            <ActionButton onClick={(e) => { e.stopPropagation(); handleEdit(presentation); }}>
+                              <FaEdit />
+                            </ActionButton>
+                            <ActionButton danger onClick={(e) => { e.stopPropagation(); handleDelete(presentation); }}>
+                              <FaTrash />
+                            </ActionButton>
+                          </CardActions>
+                          <PresentationTitle>{presentation.sujet}</PresentationTitle>
+                          <p style={{ color: '#666', marginBottom: '1rem' }}>{presentation.description}</p>
+                          <PresentationInfo>
+                            <InfoRow>
+                              <strong>Date:</strong> {formatDate(presentation.datePresentation)}
+                            </InfoRow>
+                            <InfoRow>
+                              <strong>Horaire:</strong> {formatTime(presentation.heureDebut)} - {formatTime(presentation.heureFin)}
+                            </InfoRow>
+                            {presentation.utilisateur && (
+                              <>
+                                <InfoRow>
+                                  <strong>Présentateur:</strong> {presentation.utilisateur.prenom} {presentation.utilisateur.nom}
+                                </InfoRow>
+                                <InfoRow>
+                                  <strong>Département:</strong> {presentation.utilisateur.departement}
+                                </InfoRow>
+                              </>
+                            )}
+                            <InfoRow>
+                              <strong>Statut:</strong> <PresentationStatus statusColor={getStatusColor(status)}>{status}</PresentationStatus>
+                            </InfoRow>
+                          </PresentationInfo>
+                          <StatsRow>
+                            <StatBadge>
+                              <FaStar /> {stats.moyenneVotes ? stats.moyenneVotes.toFixed(1) : '0.0'}/5 ({stats.nombreVotes} votes)
+                            </StatBadge>
+                            <StatBadge>
+                              💬 {stats.nombreCommentaires} commentaire{stats.nombreCommentaires > 1 ? 's' : ''}
+                            </StatBadge>
+                          </StatsRow>
+                        </PresentationCard>
+                      );
+                    })}
                   </PresentationList>
                 </StatusSection>
               )
             ))}
+
+            {filteredPresentations.length === 0 && (
+              <EmptyState>
+                <FaList />
+                <h3>Aucune présentation trouvée</h3>
+                <p>Commencez par créer une nouvelle présentation</p>
+              </EmptyState>
+            )}
           </>
         )}
 
         {/* Modal Détails */}
         {showModal && selectedPresentation && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
-              <h2>Détails de la présentation</h2>
-              <p><strong>Sujet:</strong> {selectedPresentation.sujet}</p>
-              <p><strong>Description:</strong> {selectedPresentation.description || 'Aucune description'}</p>
-              <p><strong>Date:</strong> {selectedPresentation.datePresentation}</p>
-              <p><strong>Heure:</strong> {formatTime(selectedPresentation.heureDebut)} - {formatTime(selectedPresentation.heureFin)}</p>
-              <p><strong>Statut:</strong> {selectedPresentation.statut}</p>
-              {selectedPresentation.fichiers && selectedPresentation.fichiers.trim() && (
-                <div>
-                  <strong>Fichiers:</strong>
-                  <ul>
-                    {selectedPresentation.fichiers.split(',').map((file, index) => (
-                      <li key={index}>
-                        <a href={`/uploads/presentations/${file.trim()}`} target="_blank" rel="noopener noreferrer">
-                          {file.trim()}
-                        </a>
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '12px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}>
+              <h2 style={{ color: '#FF6B1A', marginBottom: '1.5rem' }}>Détails de la présentation</h2>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong style={{ color: '#666' }}>Sujet:</strong>
+                <p style={{ marginTop: '0.3rem', fontSize: '1.1rem' }}>{selectedPresentation.sujet}</p>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong style={{ color: '#666' }}>Description:</strong>
+                <p style={{ marginTop: '0.3rem' }}>{selectedPresentation.description || 'Aucune description'}</p>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong style={{ color: '#666' }}>Date:</strong>
+                <p style={{ marginTop: '0.3rem' }}>{formatDate(selectedPresentation.datePresentation)}</p>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong style={{ color: '#666' }}>Heure:</strong>
+                <p style={{ marginTop: '0.3rem' }}>{formatTime(selectedPresentation.heureDebut)} - {formatTime(selectedPresentation.heureFin)}</p>
+              </div>
+
+              {selectedPresentation.utilisateur && (
+                <>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <strong style={{ color: '#666' }}>Présentateur:</strong>
+                    <p style={{ marginTop: '0.3rem' }}>{selectedPresentation.utilisateur.prenom} {selectedPresentation.utilisateur.nom}</p>
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <strong style={{ color: '#666' }}>Département:</strong>
+                    <p style={{ marginTop: '0.3rem' }}>{selectedPresentation.utilisateur.departement}</p>
+                  </div>
+                </>
+              )}
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong style={{ color: '#666' }}>Statut:</strong>
+                <p style={{ marginTop: '0.3rem' }}>
+                  <PresentationStatus statusColor={getStatusColor(selectedPresentation.statut)}>
+                    {selectedPresentation.statut}
+                  </PresentationStatus>
+                </p>
+              </div>
+
+              {selectedPresentation.fichier && selectedPresentation.fichier.trim() && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <strong style={{ color: '#666' }}>Fichiers:</strong>
+                  <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                    {selectedPresentation.fichier.split(',').map((file, index) => (
+                      <li key={index} style={{ marginBottom: '0.5rem' }}>
+                        <button
+                          onClick={() => downloadFile(file.trim())}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#FF8C42',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.3rem'
+                          }}
+                        >
+                          <FaDownload /> {file.trim()}
+                        </button>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button onClick={() => { setShowModal(false); setSelectedPresentation(null); }} style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px' }}>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                <button onClick={() => { setShowModal(false); setSelectedPresentation(null); }} style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}>
                   Fermer
                 </button>
-                <button onClick={() => handleEdit(selectedPresentation)} style={{ padding: '10px 20px', backgroundColor: '#FF8C42', color: 'white', border: 'none', borderRadius: '6px' }}>
+                <button onClick={() => handleEdit(selectedPresentation)} style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#FF8C42',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}>
                   Modifier
                 </button>
-                <button onClick={() => handleDelete(selectedPresentation)} style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px' }}>
+                <button onClick={() => handleDelete(selectedPresentation)} style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}>
                   Supprimer
                 </button>
               </div>
@@ -395,63 +640,107 @@ const PresentationsPage = () => {
 
         {/* Modal Formulaire */}
         {showForm && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
-              <h2>{editingPresentation ? 'Modifier la présentation' : 'Nouvelle présentation'}</h2>
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '12px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}>
+              <h2 style={{ color: '#FF6B1A', marginBottom: '1.5rem' }}>
+                {editingPresentation ? 'Modifier la présentation' : 'Nouvelle présentation'}
+              </h2>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Sujet:</label>
-                <input 
-                  type="text" 
-                  value={formData.sujet} 
-                  onChange={(e) => setFormData({...formData, sujet: e.target.value})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', fontSize: '1rem' }} 
-                  required 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Sujet <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.sujet}
+                  onChange={(e) => setFormData({...formData, sujet: e.target.value})}
+                  style={inputStyle}
+                  placeholder="Titre de la présentation"
+                  required
                 />
               </div>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Description:</label>
-                <textarea 
-                  value={formData.description} 
-                  onChange={(e) => setFormData({...formData, description: e.target.value})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', height: '100px', fontSize: '1rem' }} 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
+                  placeholder="Description détaillée"
                 />
               </div>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Date:</label>
-                <input 
-                  type="date" 
-                  value={formData.datePresentation} 
-                  onChange={(e) => setFormData({...formData, datePresentation: e.target.value})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', fontSize: '1rem' }} 
-                  required 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Date <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.datePresentation}
+                  onChange={(e) => setFormData({...formData, datePresentation: e.target.value})}
+                  style={inputStyle}
+                  required
                 />
               </div>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Heure début:</label>
-                <input 
-                  type="time" 
-                  value={formData.heureDebut} 
-                  onChange={(e) => setFormData({...formData, heureDebut: e.target.value})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', fontSize: '1rem' }} 
-                  required 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Heure début <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.heureDebut}
+                  onChange={(e) => setFormData({...formData, heureDebut: e.target.value})}
+                  style={inputStyle}
+                  required
                 />
               </div>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Heure fin:</label>
-                <input 
-                  type="time" 
-                  value={formData.heureFin} 
-                  onChange={(e) => setFormData({...formData, heureFin: e.target.value})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', fontSize: '1rem' }} 
-                  required 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Heure fin <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.heureFin}
+                  onChange={(e) => setFormData({...formData, heureFin: e.target.value})}
+                  style={inputStyle}
+                  required
                 />
               </div>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Statut:</label>
-                <select 
-                  value={formData.statut} 
-                  onChange={(e) => setFormData({...formData, statut: e.target.value})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', fontSize: '1rem' }} 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Statut <span style={{ color: 'red' }}>*</span>
+                </label>
+                <select
+                  value={formData.statut}
+                  onChange={(e) => setFormData({...formData, statut: e.target.value})}
+                  style={inputStyle}
+                  required
                 >
                   <option value="Planifié">Planifié</option>
                   <option value="Confirmé">Confirmé</option>
@@ -459,27 +748,31 @@ const PresentationsPage = () => {
                   <option value="Annulé">Annulé</option>
                 </select>
               </div>
+
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Fichiers (optionnel):</label>
-                <input 
-                  type="file" 
-                  multiple 
-                  onChange={(e) => setFormData({...formData, fichiers: Array.from(e.target.files)})} 
-                  style={{ width: '100%', padding: '10px', border: '2px solid #FFE5CC', borderRadius: '8px', fontSize: '1rem' }} 
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Fichiers (optionnel)
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => setFormData({...formData, fichiers: Array.from(e.target.files)})}
+                  style={inputStyle}
                 />
                 {formData.fichiers.length > 0 && (
-                  <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                  <ul style={{ marginTop: '10px', paddingLeft: '20px', backgroundColor: '#FFF8F0', borderRadius: '6px', padding: '10px' }}>
                     {formData.fichiers.map((file, index) => (
-                      <li key={index}>{file.name}</li>
+                      <li key={index} style={{ color: '#FF6B1A', fontWeight: 'bold' }}>{file.name}</li>
                     ))}
                   </ul>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button 
-                  onClick={() => { 
-                    setShowForm(false); 
-                    setEditingPresentation(null); 
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingPresentation(null);
                     setFormData({
                       sujet: '',
                       description: '',
@@ -489,14 +782,32 @@ const PresentationsPage = () => {
                       statut: 'Planifié',
                       fichiers: []
                     });
-                  }} 
-                  style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                  }}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
                 >
                   Annuler
                 </button>
-                <button 
-                  onClick={handleSavePresentation} 
-                  style={{ padding: '10px 20px', backgroundColor: '#FF8C42', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                <button
+                  onClick={handleSavePresentation}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#FF8C42',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
                 >
                   {editingPresentation ? 'Modifier' : 'Créer'}
                 </button>
@@ -507,6 +818,17 @@ const PresentationsPage = () => {
       </Content>
     </Container>
   );
+};
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px',
+  border: '2px solid #FFE5CC',
+  borderRadius: '8px',
+  fontSize: '1rem',
+  transition: 'border-color 0.3s ease',
+  backgroundColor: '#FFF8F0',
+  boxSizing: 'border-box'
 };
 
 export default PresentationsPage;

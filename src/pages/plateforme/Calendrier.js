@@ -10,6 +10,7 @@ import presentationService from '../../services/presentationService';
 
 const Container = styled.div`
   display: flex;
+  min-height: 100vh;
   background: linear-gradient(135deg, #FFF8F0 0%, #e6dfd9ff 100%);
 `;
 
@@ -18,10 +19,6 @@ const Content = styled.div`
   padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
-  background-color: rgba(255, 248, 240, 0.8);
-  border-radius: 12px;
-  margin: 1rem;
-  box-shadow: 0 4px 20px rgba(255, 140, 66, 0.1);
 `;
 
 const Header = styled.div`
@@ -40,78 +37,74 @@ const localizer = dateFnsLocalizer({
   parse,
   startOfWeek,
   getDay,
-  locales: {
-    'fr': fr,
-  },
+  locales: { 'fr': fr },
 });
-
-
 
 const Calendrier = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({
-    presentationDate: '',
-    startTime: '',
-    endTime: '',
-    subject: '',
+    datePresentation: '',
+    heureDebut: '',
+    heureFin: '',
+    sujet: '',
     description: '',
-    status: 'Planifié',
-    files: [],
+    statut: 'Planifié',
+    fichiers: [],
   });
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
 
-  // Load user's presentations on component mount
   useEffect(() => {
-    const loadPresentations = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.error('No token found');
-          return;
-        }
-
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-          console.error('No user ID found');
-          return;
-        }
-        setUserId(parseInt(userId));
-
-        const presentations = await presentationService.getMyPresentations();
-        const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
-        setEvents(formattedEvents);
-      } catch (error) {
-        console.error('Erreur lors du chargement des présentations:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadPresentations();
   }, []);
 
-  // Date constraints
-  // Remove minDate and maxDate as they are incorrectly used for min and max props in Calendar
-  // const minDate = new Date(2025, 8, 30); // September 30, 2025 (months are 0-indexed)
-  // const maxDate = new Date(2099, 11, 31); // December 31, 2099
+  const loadPresentations = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const userIdFromStorage = localStorage.getItem('userId');
+      if (!userIdFromStorage) {
+        console.error('No user ID found');
+        return;
+      }
+      setUserId(parseInt(userIdFromStorage));
+
+      const presentations = await presentationService.getMyPresentations();
+      const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error('Erreur lors du chargement des présentations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSelectSlot = useCallback((slotInfo) => {
-    // slotInfo contains start and end of selected slot
     const startDateTime = slotInfo.start;
-    const endDateTime = slotInfo.end || new Date(startDateTime.getTime() + 60 * 60 * 1000); // Default 1 hour
+    const endDateTime = slotInfo.end || new Date(startDateTime.getTime() + 60 * 60 * 1000);
+
+    // Format: yyyy-MM-dd
+    const dateStr = format(startDateTime, 'yyyy-MM-dd');
+    // Format: yyyy-MM-ddTHH:mm:ss
+    const startStr = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+    const endStr = format(endDateTime, "yyyy-MM-dd'T'HH:mm:ss");
 
     setEventForm({
-      presentationDate: format(startDateTime, 'yyyy-MM-dd'),
-      startTime: format(startDateTime, 'HH:mm:ss'),
-      endTime: format(endDateTime, 'HH:mm:ss'),
-      subject: '',
+      datePresentation: dateStr,
+      heureDebut: startStr,
+      heureFin: endStr,
+      sujet: '',
       description: '',
-      status: 'Planifié',
-      files: [],
+      statut: 'Planifié',
+      fichiers: [],
     });
     setShowEventForm(true);
     setSelectedEvent(null);
@@ -119,72 +112,69 @@ const Calendrier = () => {
 
   const handleSelectEvent = useCallback((event) => {
     setSelectedEvent(event);
-    // Extract date and time from event.start and event.end
+
     const start = event.start;
     const end = event.end;
-    const presentationDate = start ? format(start, 'yyyy-MM-dd') : '';
-    const startTime = start ? format(start, 'HH:mm:ss') : '';
-    const endTime = end ? format(end, 'HH:mm:ss') : '';
+    const datePresentation = start ? format(start, 'yyyy-MM-dd') : '';
+    const heureDebut = start ? format(start, "yyyy-MM-dd'T'HH:mm:ss") : '';
+    const heureFin = end ? format(end, "yyyy-MM-dd'T'HH:mm:ss") : '';
+
     setEventForm({
-      presentationDate,
-      startTime,
-      endTime,
-      subject: event.subject || event.title || '',
+      datePresentation,
+      heureDebut,
+      heureFin,
+      sujet: event.subject || event.title || '',
       description: event.description || '',
-      status: event.status || 'Planifié',
-      files: event.files || [],
+      statut: event.status || event.statut || 'Planifié',
+      fichiers: [],
     });
     setShowEventForm(true);
   }, []);
 
   const handleSaveEvent = async () => {
-    const { presentationDate, startTime, endTime, subject, description, status } = eventForm;
-    if (presentationDate && startTime && endTime && subject && description && status && userId) {
-      try {
-        setLoading(true);
+    const { datePresentation, heureDebut, heureFin, sujet, description, statut, fichiers } = eventForm;
 
-        const presentationData = {
-          idUtilisateur: userId,
-          datePresentation: presentationDate,
-          heureDebut: `${presentationDate}T${startTime}`,
-          heureFin: `${presentationDate}T${endTime}`,
-          sujet: subject,
-          description: description,
-          statut: status
-        };
+    if (!datePresentation || !heureDebut || !heureFin || !sujet || !statut || !userId) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
 
-        if (selectedEvent) {
-          // Update existing presentation
-          await presentationService.updatePresentation(selectedEvent.id, presentationData, eventForm.files);
-        } else {
-          // Create new presentation
-          await presentationService.createPresentation(presentationData, eventForm.files);
-        }
+    try {
+      setLoading(true);
 
-        // Reload presentations
-        const presentations = await presentationService.getMyPresentations();
-        const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
-        setEvents(formattedEvents);
+      const presentationData = {
+        datePresentation,
+        heureDebut,
+        heureFin,
+        sujet,
+        description,
+        statut
+      };
 
-        setShowEventForm(false);
-        setSelectedEvent(null);
-        setEventForm({
-          presentationDate: '',
-          startTime: '',
-          endTime: '',
-          subject: '',
-          description: '',
-          status: 'Planifié',
-          files: [],
-        });
-      } catch (error) {
-        console.error('Erreur lors de la sauvegarde:', error);
-        alert('Erreur lors de la sauvegarde de la présentation');
-      } finally {
-        setLoading(false);
+      if (selectedEvent) {
+        await presentationService.updatePresentation(selectedEvent.id, presentationData, fichiers);
+      } else {
+        await presentationService.createPresentation(presentationData, fichiers);
       }
-    } else {
-      alert('Veuillez remplir tous les champs du formulaire.');
+
+      await loadPresentations();
+
+      setShowEventForm(false);
+      setSelectedEvent(null);
+      setEventForm({
+        datePresentation: '',
+        heureDebut: '',
+        heureFin: '',
+        sujet: '',
+        description: '',
+        statut: 'Planifié',
+        fichiers: [],
+      });
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      alert('Erreur lors de la sauvegarde de la présentation: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -193,22 +183,18 @@ const Calendrier = () => {
       try {
         setLoading(true);
         await presentationService.deletePresentation(selectedEvent.id);
-
-        // Reload presentations
-        const presentations = await presentationService.getMyPresentations();
-        const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
-        setEvents(formattedEvents);
+        await loadPresentations();
 
         setShowEventForm(false);
         setSelectedEvent(null);
         setEventForm({
-          presentationDate: '',
-          startTime: '',
-          endTime: '',
-          subject: '',
+          datePresentation: '',
+          heureDebut: '',
+          heureFin: '',
+          sujet: '',
           description: '',
-          status: 'Planifié',
-          files: [],
+          statut: 'Planifié',
+          fichiers: [],
         });
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
@@ -223,27 +209,24 @@ const Calendrier = () => {
     setShowEventForm(false);
     setSelectedEvent(null);
     setEventForm({
-      presentationDate: '',
-      startTime: '',
-      endTime: '',
-      subject: '',
+      datePresentation: '',
+      heureDebut: '',
+      heureFin: '',
+      sujet: '',
       description: '',
-      status: 'Planifié',
-      files: [],
+      statut: 'Planifié',
+      fichiers: [],
     });
   };
 
   const handleFileChange = (e) => {
-    setEventForm({ ...eventForm, files: Array.from(e.target.files) });
+    setEventForm({ ...eventForm, fichiers: Array.from(e.target.files) });
   };
-
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Custom toolbar component to reorder navigation buttons
   const CustomToolbar = ({ label, onNavigate, onView }) => {
     const goToToday = () => onNavigate('TODAY');
     const goToPrevious = () => onNavigate('PREV');
@@ -260,109 +243,22 @@ const Calendrier = () => {
         backgroundColor: '#FFF8F0'
       }}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button
-            onClick={goToPrevious}
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#FF8C42',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              transition: 'background-color 0.3s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#FF6B1A'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#FF8C42'}
-          >
+          <button onClick={goToPrevious} style={buttonStyle}>
             <FaChevronLeft /> Précédent
           </button>
-
-          <button
-            onClick={goToToday}
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#FF6B1A',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              transition: 'background-color 0.3s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#E55A00'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#FF6B1A'}
-          >
+          <button onClick={goToToday} style={todayButtonStyle}>
             <FaCalendarDay /> Aujourd'hui
           </button>
-
-          <button
-            onClick={goToNext}
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#FF8C42',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              transition: 'background-color 0.3s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#FF6B1A'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#FF8C42'}
-          >
+          <button onClick={goToNext} style={buttonStyle}>
             Suivant <FaChevronRight />
           </button>
         </div>
 
-        <div style={{
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: '#FF6B1A',
-          textAlign: 'center',
-          flex: 1
-        }}>
-          {label}
-        </div>
+        <div style={labelStyle}>{label}</div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
           {['month', 'week', 'day'].map(view => (
-            <button
-              key={view}
-              onClick={() => onView(view)}
-              style={{
-                padding: '6px 10px',
-                backgroundColor: '#FFE5CC',
-                color: '#FF6B1A',
-                border: '1px solid #FF8C42',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                textTransform: 'capitalize',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.backgroundColor = '#FF8C42';
-                e.target.style.color = 'white';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = '#FFE5CC';
-                e.target.style.color = '#FF6B1A';
-              }}
-            >
+            <button key={view} onClick={() => onView(view)} style={viewButtonStyle}>
               {view === 'month' ? 'Mois' : view === 'week' ? 'Semaine' : 'Jour'}
             </button>
           ))}
@@ -371,40 +267,65 @@ const Calendrier = () => {
     );
   };
 
+  const buttonStyle = {
+    padding: '8px 12px',
+    backgroundColor: '#FF8C42',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px',
+    fontSize: '14px',
+    fontWeight: 'bold'
+  };
+
+  const todayButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: '#FF6B1A'
+  };
+
+  const labelStyle = {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#FF6B1A',
+    textAlign: 'center',
+    flex: 1
+  };
+
+  const viewButtonStyle = {
+    padding: '6px 10px',
+    backgroundColor: '#FFE5CC',
+    color: '#FF6B1A',
+    border: '1px solid #FF8C42',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    textTransform: 'capitalize'
+  };
+
   return (
     <Container>
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
       <Content>
         <Header>
-          <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
+          <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
+          <h1 style={{ margin: 0 }}>Calendrier des Présentations</h1>
         </Header>
 
         <div style={{ marginBottom: '20px' }}>
-          <button
-            onClick={() => setShowEventForm(true)}
-            style={{
-              padding: '12px 24px',
-              background: 'linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(255, 140, 66, 0.3)'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #FF6B1A 0%, #E55A00 100%)';
-              e.target.style.transform = 'translateY(-1px)';
-              e.target.style.boxShadow = '0 4px 12px rgba(255, 140, 66, 0.4)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%)';
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 2px 8px rgba(255, 140, 66, 0.3)';
-            }}
-          >
+          <button onClick={() => setShowEventForm(true)} style={{
+            padding: '12px 24px',
+            background: 'linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer'
+          }}>
             Ajouter une présentation
           </button>
         </div>
@@ -414,37 +335,49 @@ const Calendrier = () => {
             <div>Chargement des présentations...</div>
           </div>
         ) : (
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 500 }}
-            onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
-            selectable
-            views={['month', 'week', 'day']}
-            defaultView="month"
-            culture="fr"
-            components={{
-              toolbar: CustomToolbar,
-            }}
-            messages={{
-              allDay: 'Toute la journée',
-              previous: 'Précédent',
-              next: 'Suivant',
-              today: 'Aujourd\'hui',
-              month: 'Mois',
-              week: 'Semaine',
-              day: 'Jour',
-              agenda: 'Agenda',
-              date: 'Date',
-              time: 'Heure',
-              event: 'Événement',
-              noEventsInRange: 'Aucun événement dans cette période.',
-              showMore: (total) => `+ ${total} de plus`,
-            }}
-          />
+          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(255, 140, 66, 0.1)' }}>
+            <Calendar
+              localizer={localizer}
+              events={events}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 600 }}
+              onSelectSlot={handleSelectSlot}
+              onSelectEvent={handleSelectEvent}
+              selectable
+              views={['month', 'week', 'day']}
+              defaultView="month"
+              culture="fr"
+              components={{
+                toolbar: CustomToolbar,
+              }}
+              eventPropGetter={(event) => ({
+                style: {
+                  backgroundColor: presentationService.getStatusColor(event.statut || event.status),
+                  borderRadius: '5px',
+                  opacity: 0.9,
+                  color: 'white',
+                  border: '0px',
+                  display: 'block'
+                }
+              })}
+              messages={{
+                allDay: 'Toute la journée',
+                previous: 'Précédent',
+                next: 'Suivant',
+                today: 'Aujourd\'hui',
+                month: 'Mois',
+                week: 'Semaine',
+                day: 'Jour',
+                agenda: 'Agenda',
+                date: 'Date',
+                time: 'Heure',
+                event: 'Événement',
+                noEventsInRange: 'Aucun événement dans cette période.',
+                showMore: (total) => `+ ${total} de plus`,
+              }}
+            />
+          </div>
         )}
 
         {showEventForm && (
@@ -458,7 +391,8 @@ const Calendrier = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000
+            zIndex: 1000,
+            padding: '20px'
           }}>
             <div style={{
               background: 'linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 100%)',
@@ -466,6 +400,8 @@ const Calendrier = () => {
               borderRadius: '16px',
               width: '700px',
               maxWidth: '90%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               boxShadow: '0 8px 32px rgba(255, 140, 66, 0.3)',
               border: '2px solid #FF8C42',
             }}>
@@ -476,154 +412,104 @@ const Calendrier = () => {
                 textAlign: 'center',
                 fontWeight: 'bold',
                 textShadow: '0 1px 2px rgba(0,0,0,0.1)'
-              }}>{selectedEvent ? 'Modifier la présentation' : 'Nouvelle présentation'}</h3>
+              }}>
+                {selectedEvent ? 'Modifier la présentation' : 'Nouvelle présentation'}
+              </h3>
 
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Date de présentation:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Date de présentation <span style={{ color: 'red' }}>*</span>
+                </label>
                 <input
                   type="date"
-                  value={eventForm.presentationDate}
-                  onChange={(e) => setEventForm({ ...eventForm, presentationDate: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  value={eventForm.datePresentation}
+                  onChange={(e) => setEventForm({ ...eventForm, datePresentation: e.target.value })}
+                  style={inputStyle}
+                  required
                 />
               </div>
 
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Heure de début:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Heure de début <span style={{ color: 'red' }}>*</span>
+                </label>
                 <input
-                  type="time"
-                  value={eventForm.startTime}
-                  onChange={(e) => setEventForm({ ...eventForm, startTime: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  type="datetime-local"
+                  value={eventForm.heureDebut}
+                  onChange={(e) => setEventForm({ ...eventForm, heureDebut: e.target.value })}
+                  style={inputStyle}
+                  required
                 />
               </div>
 
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Heure de fin:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Heure de fin <span style={{ color: 'red' }}>*</span>
+                </label>
                 <input
-                  type="time"
-                  value={eventForm.endTime}
-                  onChange={(e) => setEventForm({ ...eventForm, endTime: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  type="datetime-local"
+                  value={eventForm.heureFin}
+                  onChange={(e) => setEventForm({ ...eventForm, heureFin: e.target.value })}
+                  style={inputStyle}
+                  required
                 />
               </div>
 
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Sujet:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Sujet <span style={{ color: 'red' }}>*</span>
+                </label>
                 <input
                   type="text"
-                  value={eventForm.subject}
-                  onChange={(e) => setEventForm({ ...eventForm, subject: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  value={eventForm.sujet}
+                  onChange={(e) => setEventForm({ ...eventForm, sujet: e.target.value })}
+                  style={inputStyle}
                   placeholder="Sujet de la présentation"
+                  required
                 />
               </div>
 
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Description:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Description
+                </label>
                 <textarea
                   value={eventForm.description}
                   onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0',
-                    resize: 'vertical'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  style={{...inputStyle, resize: 'vertical', minHeight: '80px'}}
                   placeholder="Description de la présentation"
                   rows={3}
                 />
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Statut:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Statut <span style={{ color: 'red' }}>*</span>
+                </label>
                 <select
-                  value={eventForm.status}
-                  onChange={(e) => setEventForm({ ...eventForm, status: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  value={eventForm.statut}
+                  onChange={(e) => setEventForm({ ...eventForm, statut: e.target.value })}
+                  style={inputStyle}
+                  required
                 >
                   <option value="Planifié">Planifié</option>
-                  <option value="Annulé">Annulé</option>
                   <option value="Confirmé">Confirmé</option>
                   <option value="Terminé">Terminé</option>
+                  <option value="Annulé">Annulé</option>
                 </select>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Fichiers:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Fichiers
+                </label>
                 <input
                   type="file"
                   multiple
                   onChange={handleFileChange}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #FFE5CC',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'border-color 0.3s ease',
-                    backgroundColor: '#FFF8F0'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
-                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                  style={inputStyle}
                 />
-                {eventForm.files.length > 0 && (
+                {eventForm.fichiers.length > 0 && (
                   <ul style={{
                     marginTop: '10px',
                     maxHeight: '100px',
@@ -633,8 +519,10 @@ const Calendrier = () => {
                     borderRadius: '6px',
                     padding: '10px'
                   }}>
-                    {eventForm.files.map((file, index) => (
-                      <li key={index} style={{ fontSize: '0.9rem', color: '#FF6B1A', fontWeight: 'bold' }}>{file.name}</li>
+                    {eventForm.fichiers.map((file, index) => (
+                      <li key={index} style={{ fontSize: '0.9rem', color: '#FF6B1A', fontWeight: 'bold' }}>
+                        {file.name}
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -643,7 +531,7 @@ const Calendrier = () => {
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button
                   onClick={handleCancel}
-                  style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                  style={{ ...formButtonStyle, backgroundColor: '#6c757d' }}
                   disabled={loading}
                 >
                   Annuler
@@ -651,7 +539,7 @@ const Calendrier = () => {
                 {selectedEvent && (
                   <button
                     onClick={handleDeleteEvent}
-                    style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                    style={{ ...formButtonStyle, backgroundColor: '#dc3545' }}
                     disabled={loading}
                   >
                     {loading ? 'Suppression...' : 'Supprimer'}
@@ -659,7 +547,7 @@ const Calendrier = () => {
                 )}
                 <button
                   onClick={handleSaveEvent}
-                  style={{ padding: '10px 20px', backgroundColor: '#FF8113', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                  style={{ ...formButtonStyle, backgroundColor: '#FF8113' }}
                   disabled={loading}
                 >
                   {loading ? 'Sauvegarde...' : (selectedEvent ? 'Modifier' : 'Enregistrer')}
@@ -671,6 +559,28 @@ const Calendrier = () => {
       </Content>
     </Container>
   );
+};
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px',
+  border: '2px solid #FFE5CC',
+  borderRadius: '8px',
+  fontSize: '1rem',
+  transition: 'border-color 0.3s ease',
+  backgroundColor: '#FFF8F0',
+  boxSizing: 'border-box'
+};
+
+const formButtonStyle = {
+  padding: '10px 20px',
+  color: 'white',
+  border: 'none',
+  borderRadius: '6px',
+  fontSize: '1rem',
+  cursor: 'pointer',
+  fontWeight: 'bold',
+  transition: 'opacity 0.2s'
 };
 
 export default Calendrier;
