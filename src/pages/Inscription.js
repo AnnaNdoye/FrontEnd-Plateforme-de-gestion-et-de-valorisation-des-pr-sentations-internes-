@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash, FaArrowLeft, FaBuilding } from 'react-icons/fa';
 import { register } from '../services/api';
+import { departementService } from '../services/departementService';
 
 const Container = styled.div`
     margin: 0 auto;
@@ -78,7 +79,27 @@ const Input = styled.input`
     transition: all 0.3s ease;
     background-color: #f7fdf9;
     box-sizing: border-box;
-    
+
+    &:focus {
+        border-color: #FF8113;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
+        background-color: white;
+    }
+`;
+
+const Select = styled.select`
+    width: 100%;
+    padding: 1.1rem 1.1rem 1.1rem 3.5rem;
+    border: 2px solid #e0f2e9;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+    background-color: #f7fdf9;
+    box-sizing: border-box;
+    appearance: none;
+    cursor: pointer;
+
     &:focus {
         border-color: #FF8113;
         outline: none;
@@ -221,9 +242,23 @@ const Inscription = () => {
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
     const [montrerMotDePasse, setMontrerMotDePasse] = useState(false);
+    const [departement, setDepartement] = useState('');
+    const [departements, setDepartements] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    useEffect(() => {
+        const fetchDepartements = async () => {
+            try {
+                const response = await departementService.getAll();
+                setDepartements(response.data);
+            } catch (error) {
+                setError('Erreur lors du chargement des départements : ' + (error.response?.data?.message || error.message));
+            }
+        };
+        fetchDepartements();
+    }, []);
 
     const toggleMontrerMotDePasse = (e) => {
         e.preventDefault();
@@ -243,7 +278,7 @@ const Inscription = () => {
         setIsLoading(true);
 
         try {
-            const userData = { prenom, nom, poste, matricule, email, motDePasse };
+            const userData = { prenom, nom, poste, matricule, email, motDePasse, departementId: departement };
             await register(userData);
             setSuccess('Inscription réussie ! Redirection vers la page de connexion...');
             setTimeout(() => {
@@ -327,6 +362,27 @@ const Inscription = () => {
                             required
                             disabled={isLoading}
                         />
+                    </InputWrapper>
+                </InputGroup>
+
+                <InputGroup>
+                    <Label>Département</Label>
+                    <InputWrapper>
+                        <InputIcon><FaBuilding /></InputIcon>
+                        <Select
+                            name="departement"
+                            value={departement}
+                            onChange={(e) => setDepartement(e.target.value)}
+                            required
+                            disabled={isLoading}
+                        >
+                            <option value="">Sélectionnez un département</option>
+                            {departements.map((dep) => (
+                                <option key={dep.id} value={dep.id}>
+                                    {dep.nom}
+                                </option>
+                            ))}
+                        </Select>
                     </InputWrapper>
                 </InputGroup>
 

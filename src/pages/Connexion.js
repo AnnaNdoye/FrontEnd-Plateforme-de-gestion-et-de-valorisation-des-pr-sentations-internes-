@@ -153,7 +153,7 @@ const Connexion = () => {
         setIsLoading(true);
         setErrorMessage('');
         try {
-            const response = await login(email, motDePasse);
+            const response = await login({ email, motDePasse });
             localStorage.setItem('token', response.token);
             navigate('/plateforme/dashboard');
         } catch (error) {

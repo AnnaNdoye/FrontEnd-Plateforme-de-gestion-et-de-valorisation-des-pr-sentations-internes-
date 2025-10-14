@@ -1,26 +1,33 @@
-import api from './api';
+import axios from 'axios';
+
+const departementApi = axios.create({
+    baseURL: 'http://localhost:8080/api',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
 
 export const departementService = {
     // Test de connexion
-    test: () => api.get('/departements/test'),
-    
+    test: () => departementApi.get('/departements/test'),
+
     // Récupérer tous les départements
-    getAll: () => api.get('/departements'),
-    
+    getAll: () => departementApi.get('/departements'),
+
     // Récupérer un département par ID
-    getById: (id) => api.get(`/departements/${id}`),
-    
+    getById: (id) => departementApi.get(`/departements/${id}`),
+
     // Créer un nouveau département
-    create: (departement) => api.post('/departements', departement),
-    
+    create: (departement) => departementApi.post('/departements', departement),
+
     // Mettre à jour un département
-    update: (id, departement) => api.put(`/departements/${id}`, departement),
-    
+    update: (id, departement) => departementApi.put(`/departements/${id}`, departement),
+
     // Supprimer un département
-    delete: (id) => api.delete(`/departements/${id}`),
-    
+    delete: (id) => departementApi.delete(`/departements/${id}`),
+
     // Rechercher des départements
-    search: (keyword) => api.get(`/departements/search`, {
+    search: (keyword) => departementApi.get(`/departements/search`, {
         params: { keyword }
     })
 };
