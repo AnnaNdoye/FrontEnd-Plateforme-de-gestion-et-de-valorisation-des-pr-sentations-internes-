@@ -56,14 +56,23 @@ const Recherche = ({ onSearch }) => {
     }
     };
 
+    const handleInputChange = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    // Recherche en temps réel
+    if (onSearch) {
+        onSearch(term);
+    }
+    };
+
     return (
     <SearchContainer>
         <form onSubmit={handleSearch} style={{ display: 'flex', width: '100%' }}>
-        <input 
-            type="text" 
-            placeholder="Rechercher une présentation..." 
+        <input
+            type="text"
+            placeholder="Rechercher une présentation..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleInputChange}
         />
         <button type="submit">
             <FaSearch />

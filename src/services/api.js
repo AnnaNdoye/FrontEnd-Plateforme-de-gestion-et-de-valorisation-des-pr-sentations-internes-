@@ -92,7 +92,12 @@ export const updateProfile = async (profileData) => {
   }
 };
 
-export const logout = () => {
+export const logout = async () => {
+  try {
+    await api.post('/logout');
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error);
+  }
   localStorage.removeItem('token');
 };
 

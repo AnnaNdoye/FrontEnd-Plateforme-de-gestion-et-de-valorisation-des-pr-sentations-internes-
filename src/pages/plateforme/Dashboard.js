@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaList, FaCalendarAlt, FaBell, FaUser } from 'react-icons/fa';
 import Barre from './Barre';
-import Recherche from './Recherche';
 
 const Container = styled.div`
   display: flex;
@@ -95,7 +94,6 @@ const Dashboard = () => {
           <h1>Bienvenue sur le tableau de bord</h1>
           <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} />
         </Header>
-        <Recherche />
         <CardGrid>
           {quickActions.map((action, index) => (
             <Card key={index} tabIndex={0} role="button" aria-pressed="false" onClick={() => navigate(action.path)}>

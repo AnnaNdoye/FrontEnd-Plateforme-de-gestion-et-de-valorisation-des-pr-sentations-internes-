@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -6,6 +6,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import styled from 'styled-components';
 import { FaList, FaChevronLeft, FaChevronRight, FaCalendarDay } from 'react-icons/fa';
 import Barre from './Barre';
+import presentationService from '../../services/presentationService';
 
 const Container = styled.div`
   display: flex;
@@ -53,11 +54,45 @@ const Calendrier = () => {
   const [eventForm, setEventForm] = useState({
     presentationDate: '',
     startTime: '',
+    endTime: '',
     subject: '',
     description: '',
     status: 'Planifié',
     files: [],
   });
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState(null);
+
+  // Load user's presentations on component mount
+  useEffect(() => {
+    const loadPresentations = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          console.error('No user ID found');
+          return;
+        }
+        setUserId(parseInt(userId));
+
+        const presentations = await presentationService.getMyPresentations();
+        const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
+        setEvents(formattedEvents);
+      } catch (error) {
+        console.error('Erreur lors du chargement des présentations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPresentations();
+  }, []);
 
   // Date constraints
   // Remove minDate and maxDate as they are incorrectly used for min and max props in Calendar
@@ -66,26 +101,34 @@ const Calendrier = () => {
 
   const handleSelectSlot = useCallback((slotInfo) => {
     // slotInfo contains start and end of selected slot
+    const startDateTime = slotInfo.start;
+    const endDateTime = slotInfo.end || new Date(startDateTime.getTime() + 60 * 60 * 1000); // Default 1 hour
+
     setEventForm({
-      presentationDate: slotInfo.start ? format(slotInfo.start, 'yyyy-MM-dd') : '',
-      startTime: slotInfo.start ? format(slotInfo.start, 'HH:mm') : '',
+      presentationDate: format(startDateTime, 'yyyy-MM-dd'),
+      startTime: format(startDateTime, 'HH:mm:ss'),
+      endTime: format(endDateTime, 'HH:mm:ss'),
       subject: '',
       description: '',
       status: 'Planifié',
       files: [],
     });
     setShowEventForm(true);
+    setSelectedEvent(null);
   }, []);
 
   const handleSelectEvent = useCallback((event) => {
     setSelectedEvent(event);
-    // Extract date and time from event.start
+    // Extract date and time from event.start and event.end
     const start = event.start;
+    const end = event.end;
     const presentationDate = start ? format(start, 'yyyy-MM-dd') : '';
-    const startTime = start ? format(start, 'HH:mm') : '';
+    const startTime = start ? format(start, 'HH:mm:ss') : '';
+    const endTime = end ? format(end, 'HH:mm:ss') : '';
     setEventForm({
       presentationDate,
       startTime,
+      endTime,
       subject: event.subject || event.title || '',
       description: event.description || '',
       status: event.status || 'Planifié',
@@ -94,63 +137,85 @@ const Calendrier = () => {
     setShowEventForm(true);
   }, []);
 
-  const handleSaveEvent = () => {
-    const { presentationDate, startTime, subject, description, status } = eventForm;
-    if (presentationDate && startTime && subject && description && status) {
-      // Combine presentationDate and startTime into a Date object
-      const start = new Date(`${presentationDate}T${startTime}`);
-      // For simplicity, set end to start + 1 hour
-      const end = new Date(start.getTime() + 60 * 60 * 1000);
+  const handleSaveEvent = async () => {
+    const { presentationDate, startTime, endTime, subject, description, status } = eventForm;
+    if (presentationDate && startTime && endTime && subject && description && status && userId) {
+      try {
+        setLoading(true);
 
-      if (selectedEvent) {
-        // Update existing event
-        setEvents(events.map(evt =>
-          evt.id === selectedEvent.id
-            ? { ...evt, title: subject, start, end, subject, description, status, files: eventForm.files }
-            : evt
-        ));
-      } else {
-        // Add new event
-        const newEvent = {
-          id: Date.now(),
-          title: subject,
-          start,
-          end,
-          subject,
-          description,
-          status,
-          files: eventForm.files,
+        const presentationData = {
+          idUtilisateur: userId,
+          datePresentation: presentationDate,
+          heureDebut: `${presentationDate}T${startTime}`,
+          heureFin: `${presentationDate}T${endTime}`,
+          sujet: subject,
+          description: description,
+          statut: status
         };
-        setEvents([...events, newEvent]);
+
+        if (selectedEvent) {
+          // Update existing presentation
+          await presentationService.updatePresentation(selectedEvent.id, presentationData, eventForm.files);
+        } else {
+          // Create new presentation
+          await presentationService.createPresentation(presentationData, eventForm.files);
+        }
+
+        // Reload presentations
+        const presentations = await presentationService.getMyPresentations();
+        const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
+        setEvents(formattedEvents);
+
+        setShowEventForm(false);
+        setSelectedEvent(null);
+        setEventForm({
+          presentationDate: '',
+          startTime: '',
+          endTime: '',
+          subject: '',
+          description: '',
+          status: 'Planifié',
+          files: [],
+        });
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error);
+        alert('Erreur lors de la sauvegarde de la présentation');
+      } finally {
+        setLoading(false);
       }
-      setShowEventForm(false);
-      setSelectedEvent(null);
-      setEventForm({
-        presentationDate: '',
-        startTime: '',
-        subject: '',
-        description: '',
-        status: 'Planifié',
-        files: [],
-      });
     } else {
       alert('Veuillez remplir tous les champs du formulaire.');
     }
   };
 
-  const handleDeleteEvent = () => {
-    if (selectedEvent) {
-      setEvents(events.filter(evt => evt.id !== selectedEvent.id));
-      setShowEventForm(false);
-      setSelectedEvent(null);
-      setEventForm({
-        presentationDate: '',
-        startTime: '',
-        subject: '',
-        description: '',
-        status: 'Planifié',
-        files: [],
-      });
+  const handleDeleteEvent = async () => {
+    if (selectedEvent && window.confirm('Êtes-vous sûr de vouloir supprimer cette présentation ?')) {
+      try {
+        setLoading(true);
+        await presentationService.deletePresentation(selectedEvent.id);
+
+        // Reload presentations
+        const presentations = await presentationService.getMyPresentations();
+        const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
+        setEvents(formattedEvents);
+
+        setShowEventForm(false);
+        setSelectedEvent(null);
+        setEventForm({
+          presentationDate: '',
+          startTime: '',
+          endTime: '',
+          subject: '',
+          description: '',
+          status: 'Planifié',
+          files: [],
+        });
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        alert('Erreur lors de la suppression de la présentation');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -160,6 +225,7 @@ const Calendrier = () => {
     setEventForm({
       presentationDate: '',
       startTime: '',
+      endTime: '',
       subject: '',
       description: '',
       status: 'Planifié',
@@ -343,37 +409,43 @@ const Calendrier = () => {
           </button>
         </div>
 
-        <Calendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 500 }}
-          onSelectSlot={handleSelectSlot}
-          onSelectEvent={handleSelectEvent}
-          selectable
-          views={['month', 'week', 'day']}
-          defaultView="month"
-          culture="fr"
-          components={{
-            toolbar: CustomToolbar,
-          }}
-          messages={{
-            allDay: 'Toute la journée',
-            previous: 'Précédent',
-            next: 'Suivant',
-            today: 'Aujourd\'hui',
-            month: 'Mois',
-            week: 'Semaine',
-            day: 'Jour',
-            agenda: 'Agenda',
-            date: 'Date',
-            time: 'Heure',
-            event: 'Événement',
-            noEventsInRange: 'Aucun événement dans cette période.',
-            showMore: (total) => `+ ${total} de plus`,
-          }}
-        />
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <div>Chargement des présentations...</div>
+          </div>
+        ) : (
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 500 }}
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
+            selectable
+            views={['month', 'week', 'day']}
+            defaultView="month"
+            culture="fr"
+            components={{
+              toolbar: CustomToolbar,
+            }}
+            messages={{
+              allDay: 'Toute la journée',
+              previous: 'Précédent',
+              next: 'Suivant',
+              today: 'Aujourd\'hui',
+              month: 'Mois',
+              week: 'Semaine',
+              day: 'Jour',
+              agenda: 'Agenda',
+              date: 'Date',
+              time: 'Heure',
+              event: 'Événement',
+              noEventsInRange: 'Aucun événement dans cette période.',
+              showMore: (total) => `+ ${total} de plus`,
+            }}
+          />
+        )}
 
         {showEventForm && (
           <div style={{
@@ -432,6 +504,26 @@ const Calendrier = () => {
                   type="time"
                   value={eventForm.startTime}
                   onChange={(e) => setEventForm({ ...eventForm, startTime: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #FFE5CC',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    transition: 'border-color 0.3s ease',
+                    backgroundColor: '#FFF8F0'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#FF8C42'}
+                  onBlur={(e) => e.target.style.borderColor = '#FFE5CC'}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>Heure de fin:</label>
+                <input
+                  type="time"
+                  value={eventForm.endTime}
+                  onChange={(e) => setEventForm({ ...eventForm, endTime: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '10px',
@@ -552,6 +644,7 @@ const Calendrier = () => {
                 <button
                   onClick={handleCancel}
                   style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                  disabled={loading}
                 >
                   Annuler
                 </button>
@@ -559,15 +652,17 @@ const Calendrier = () => {
                   <button
                     onClick={handleDeleteEvent}
                     style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                    disabled={loading}
                   >
-                    Supprimer
+                    {loading ? 'Suppression...' : 'Supprimer'}
                   </button>
                 )}
                 <button
                   onClick={handleSaveEvent}
                   style={{ padding: '10px 20px', backgroundColor: '#FF8113', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem' }}
+                  disabled={loading}
                 >
-                  {selectedEvent ? 'Modifier' : 'Enregistrer'}
+                  {loading ? 'Sauvegarde...' : (selectedEvent ? 'Modifier' : 'Enregistrer')}
                 </button>
               </div>
             </div>
