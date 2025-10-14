@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { FaList, FaUser, FaEnvelope, FaBriefcase, FaIdCard, FaCalendarAlt } from 'react-icons/fa';
 import Barre from './Barre';
+
 import defaultProfileImage from '../../images/photo_de_profil_par_defaut.jpg';
 import { getProfile, updateProfile } from '../../services/api';
-
 const Container = styled.div`
   display: flex;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -162,45 +162,6 @@ const Profil = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      // Cleanup des URLs blob
-      if (profile.photo && profile.photo.startsWith('blob:')) {
-        URL.revokeObjectURL(profile.photo);
-      }
-    };
-  }, [profile.photo]);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getProfile();
-      
-      const profileData = {
-        nom: data.nom || '',
-        prenom: data.prenom || '',
-        email: data.email || '',
-        poste: data.poste || '',
-        matricule: data.matricule || '',
-        dateInscription: formatDate(data.dateInscription),
-        photo: data.photoUrl || null,
-      };
-      
-      setProfile(profileData);
-      setOriginalProfile(profileData);
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      setError('Erreur lors du chargement du profil');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -210,6 +171,45 @@ const Profil = () => {
       day: 'numeric'
     });
   };
+
+  const loadProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getProfile();
+
+      const profileData = {
+        nom: data.nom || '',
+        prenom: data.prenom || '',
+        email: data.email || '',
+        poste: data.poste || '',
+        matricule: data.matricule || '',
+        dateInscription: formatDate(data.dateInscription),
+        photo: data.photoUrl || null,
+      };
+
+      setProfile(profileData);
+      setOriginalProfile(profileData);
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      setError('Erreur lors du chargement du profil');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup des URLs blob
+      if (profile.photo && profile.photo.startsWith('blob:')) {
+        URL.revokeObjectURL(profile.photo);
+      }
+    };
+  }, [profile.photo]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -335,74 +335,74 @@ const Profil = () => {
                 alt="Photo de profil" 
               />
               {isEditing ? (
-                <>
+                <div key="edit">
                   <FileInput
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoChange}
                   />
-                  <InfoItem>
+                  <InfoItem key="nom">
                     <Label><FaUser /> Nom:</Label>
                     <Input name="nom" value={profile.nom} onChange={handleChange} />
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="prenom">
                     <Label><FaUser /> Prénom:</Label>
                     <Input name="prenom" value={profile.prenom} onChange={handleChange} />
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="email">
                     <Label><FaEnvelope /> Email:</Label>
                     <Input name="email" value={profile.email} onChange={handleChange} />
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="poste">
                     <Label><FaBriefcase /> Poste:</Label>
                     <Input name="poste" value={profile.poste} onChange={handleChange} />
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="matricule">
                     <Label><FaIdCard /> Matricule:</Label>
                     <Input name="matricule" value={profile.matricule} onChange={handleChange} />
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="dateInscription">
                     <Label><FaCalendarAlt /> Date d'inscription:</Label>
                     <Value>{profile.dateInscription}</Value>
                   </InfoItem>
                   <ButtonGroup>
                     <Button onClick={handleSave}>Sauvegarder</Button>
-                    <Button 
-                      onClick={handleCancel} 
+                    <Button
+                      onClick={handleCancel}
                       style={{ background: 'linear-gradient(45deg, #ccc, #999)' }}
                     >
                       Annuler
                     </Button>
                   </ButtonGroup>
-                </>
+                </div>
               ) : (
-                <>
-                  <InfoItem>
+                <div key="view">
+                  <InfoItem key="nom">
                     <Label><FaUser /> Nom:</Label>
                     <Value>{profile.nom}</Value>
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="prenom">
                     <Label><FaUser /> Prénom:</Label>
                     <Value>{profile.prenom}</Value>
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="email">
                     <Label><FaEnvelope /> Email:</Label>
                     <Value>{profile.email}</Value>
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="poste">
                     <Label><FaBriefcase /> Poste:</Label>
                     <Value>{profile.poste}</Value>
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="matricule">
                     <Label><FaIdCard /> Matricule:</Label>
                     <Value>{profile.matricule}</Value>
                   </InfoItem>
-                  <InfoItem>
+                  <InfoItem key="dateInscription">
                     <Label><FaCalendarAlt /> Date d'inscription:</Label>
                     <Value>{profile.dateInscription}</Value>
                   </InfoItem>
                   <Button onClick={toggleEdit}>Modifier le profil</Button>
-                </>
+                </div>
               )}
             </>
           )}

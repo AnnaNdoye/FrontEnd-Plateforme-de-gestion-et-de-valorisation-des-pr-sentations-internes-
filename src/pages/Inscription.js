@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash, FaArrowLeft, FaBuilding } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaAddressCard, FaAddressBook, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { register } from '../services/api';
-import { departementService } from '../services/departementService';
 
 const Container = styled.div`
     margin: 0 auto;
@@ -31,10 +30,6 @@ const RetourButton = styled.button`
     &:hover {
         background-color: #e67010;
         transform: translateX(-5px);
-    }
-    
-    &:active {
-        transform: translateX(-3px);
     }
 `;
 
@@ -97,7 +92,6 @@ const Select = styled.select`
     transition: all 0.3s ease;
     background-color: #f7fdf9;
     box-sizing: border-box;
-    appearance: none;
     cursor: pointer;
 
     &:focus {
@@ -115,6 +109,7 @@ const InputIcon = styled.div`
     transform: translateY(-50%);
     color: #FF8113;
     font-size: 1.2rem;
+    pointer-events: none;
 `;
 
 const TogglePasswordButton = styled.button`
@@ -128,14 +123,6 @@ const TogglePasswordButton = styled.button`
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-    
-    &:hover {
-        color: #e67010;
-    }
     
     &:focus {
         outline: none;
@@ -144,7 +131,7 @@ const TogglePasswordButton = styled.button`
 
 const PasswordHelp = styled.small`
     font-size: 0.85rem;
-    color: #666;    
+    color: #666;
     margin-left: 0.5rem;
     margin-top: 0.3rem;
 `;
@@ -212,26 +199,10 @@ const SuccessMessage = styled.div`
     border-left: 4px solid #2e7d32;
 `;
 
-const LoadingSpinner = styled.div`
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 0.8s ease-in-out infinite;
-    margin-right: 0.5rem;
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-`;
-
 const Inscription = () => {
     const navigate = useNavigate();
 
     const retour = () => {
-        console.log("Navigation vers /");
         navigate("/");
     }
 
@@ -242,23 +213,21 @@ const Inscription = () => {
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
     const [montrerMotDePasse, setMontrerMotDePasse] = useState(false);
-    const [departement, setDepartement] = useState('');
-    const [departements, setDepartements] = useState([]);
+    const [departement, setDepartement] = useState('SICO');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    useEffect(() => {
-        const fetchDepartements = async () => {
-            try {
-                const response = await departementService.getAll();
-                setDepartements(response.data);
-            } catch (error) {
-                setError('Erreur lors du chargement des départements : ' + (error.response?.data?.message || error.message));
-            }
-        };
-        fetchDepartements();
-    }, []);
+    const departements = [
+        { value: 'SICO', label: 'SICO' },
+        { value: 'IT', label: 'IT' },
+        { value: 'DATA', label: 'DATA' },
+        { value: 'RH', label: 'Ressources Humaines' },
+        { value: 'FINANCE', label: 'Finance' },
+        { value: 'MARKETING', label: 'Marketing' },
+        { value: 'COMMERCIAL', label: 'Commercial' },
+        { value: 'TECHNIQUE', label: 'Technique' }
+    ];
 
     const toggleMontrerMotDePasse = (e) => {
         e.preventDefault();
@@ -270,22 +239,34 @@ const Inscription = () => {
         setError('');
         setSuccess('');
 
-        if (motDePasse.length < 8) {
-            setError('Le mot de passe doit contenir au moins 8 caractères');
+        if (motDePasse.length < 6) {
+            setError('Le mot de passe doit contenir au moins 6 caractères');
             return;
         }
 
         setIsLoading(true);
 
         try {
-            const userData = { prenom, nom, poste, matricule, email, motDePasse, departementId: departement };
+            const userData = { 
+                prenom, 
+                nom, 
+                poste, 
+                matricule, 
+                email, 
+                motDePasse, 
+                departement 
+            };
+            
             await register(userData);
             setSuccess('Inscription réussie ! Redirection vers la page de connexion...');
+            
             setTimeout(() => {
                 navigate('/connexion');
             }, 2000);
         } catch (error) {
-            setError('Erreur lors de l\'inscription : ' + (error.response?.data?.message || error.message));
+            console.error('Erreur inscription:', error);
+            const errorMsg = error.message || error.error || 'Erreur lors de l\'inscription';
+            setError(errorMsg);
             setIsLoading(false);
         }
     }
@@ -302,7 +283,7 @@ const Inscription = () => {
                 {success && <SuccessMessage>{success}</SuccessMessage>}
 
                 <InputGroup>
-                    <Label>Prénom</Label>
+                    <Label>Prénom <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
                         <InputIcon><FaUser /></InputIcon>
                         <Input
@@ -313,12 +294,13 @@ const Inscription = () => {
                             onChange={(e) => setPrenom(e.target.value)}
                             required
                             disabled={isLoading}
+                            minLength="2"
                         />
                     </InputWrapper>
                 </InputGroup>
 
                 <InputGroup>
-                    <Label>Nom</Label>
+                    <Label>Nom <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
                         <InputIcon><FaUser /></InputIcon>
                         <Input
@@ -329,12 +311,13 @@ const Inscription = () => {
                             onChange={(e) => setNom(e.target.value)}
                             required
                             disabled={isLoading}
+                            minLength="2"
                         />
                     </InputWrapper>
                 </InputGroup>
 
                 <InputGroup>
-                    <Label>Poste</Label>
+                    <Label>Poste <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
                         <InputIcon><FaAddressBook/></InputIcon>
                         <Input
@@ -350,7 +333,7 @@ const Inscription = () => {
                 </InputGroup>
 
                 <InputGroup>
-                    <Label>Matricule</Label>
+                    <Label>Matricule <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
                         <InputIcon><FaAddressCard /></InputIcon>
                         <Input
@@ -366,9 +349,9 @@ const Inscription = () => {
                 </InputGroup>
 
                 <InputGroup>
-                    <Label>Département</Label>
+                    <Label>Département <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
-                        <InputIcon><FaBuilding /></InputIcon>
+                        <InputIcon><FaAddressBook /></InputIcon>
                         <Select
                             name="departement"
                             value={departement}
@@ -376,10 +359,9 @@ const Inscription = () => {
                             required
                             disabled={isLoading}
                         >
-                            <option value="">Sélectionnez un département</option>
                             {departements.map((dep) => (
-                                <option key={dep.id} value={dep.id}>
-                                    {dep.nom}
+                                <option key={dep.value} value={dep.value}>
+                                    {dep.label}
                                 </option>
                             ))}
                         </Select>
@@ -387,7 +369,7 @@ const Inscription = () => {
                 </InputGroup>
 
                 <InputGroup>
-                    <Label>E-mail</Label>
+                    <Label>E-mail <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
                         <InputIcon><FaEnvelope /></InputIcon>
                         <Input
@@ -403,7 +385,7 @@ const Inscription = () => {
                 </InputGroup>
 
                 <InputGroup>
-                    <Label>Mot de passe</Label>
+                    <Label>Mot de passe <span style={{ color: 'red' }}>*</span></Label>
                     <InputWrapper>
                         <InputIcon><FaLock /></InputIcon>
                         <Input
@@ -413,35 +395,27 @@ const Inscription = () => {
                             value={motDePasse}
                             onChange={(e) => setMotDePasse(e.target.value)}
                             required
-                            minLength="8"
+                            minLength="6"
                             disabled={isLoading}
                         />
                         <TogglePasswordButton 
                             type="button"
                             onClick={toggleMontrerMotDePasse}
-                            aria-label={montrerMotDePasse ? "Cacher le mot de passe" : "Afficher le mot de passe"}
                             disabled={isLoading}
                         >
                             {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
                         </TogglePasswordButton>
                     </InputWrapper>
-                    <PasswordHelp>Minimum 8 caractères</PasswordHelp>
+                    <PasswordHelp>Minimum 6 caractères</PasswordHelp>
                 </InputGroup>
 
                 <SubmitButton type="submit" disabled={isLoading}>
-                    {isLoading ? (
-                        <>
-                            <LoadingSpinner />
-                            Inscription en cours...
-                        </>
-                    ) : (
-                        "S'inscrire"
-                    )}
+                    {isLoading ? "Inscription en cours..." : "S'inscrire"}
                 </SubmitButton> 
 
                 <LinksContainer>
                     <StyledLink to="/connexion">
-                        Déjà inscrit ?    Se connecter
+                        Déjà inscrit ? Se connecter
                     </StyledLink>
                 </LinksContainer>
             </Form>
