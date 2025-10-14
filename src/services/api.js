@@ -1,89 +1,108 @@
-// src/services/api.js
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_URL = 'http://localhost:8080/api/auth';
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
+  baseURL: API_URL,
+  headers: {
     'Content-Type': 'application/json',
-    },
-  timeout: 10000,
+  },
 });
 
+// Intercepteur pour ajouter le token JWT
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
-
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            if (window.location.pathname.startsWith('/plateforme')) {
-                window.location.href = '/connexion';
-            }
-        }
-        return Promise.reject(error);
-    }
-);
-
-export const login = async (email, motDePasse) => {
-    const response = await api.post('/auth/login', { email, motDePasse });
-    return response.data;
-};
 
 export const register = async (userData) => {
-    const response = await api.post('/auth/register', userData);
+  try {
+    const response = await api.post('/register', userData);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
     return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const login = async (credentials) => {
+  try {
+    const response = await api.post('/login', credentials);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
 };
 
 export const getProfile = async () => {
-    const response = await api.get('/auth/profile');
-    return response.data;
+  try {
+    const response = await api.get('/profile');
+    // Normaliser la réponse pour utiliser photoUrl
+    return {
+      ...response.data,
+      photoUrl: response.data.photoDeProfil || response.data.photoUrl,
+    };
+  } catch (error) {
+    throw error.response?.data || error;
+  }
 };
 
 export const updateProfile = async (profileData) => {
+  try {
     const formData = new FormData();
-    formData.append('nom', profileData.nom);
-    formData.append('prenom', profileData.prenom);
-    formData.append('email', profileData.email);
-    formData.append('poste', profileData.poste);
-    formData.append('matricule', profileData.matricule);
-    if (profileData.photo && profileData.photo instanceof File) {
-        formData.append('photo', profileData.photo);
+    
+    // Ajouter les champs texte
+    formData.append('nom', profileData.nom || '');
+    formData.append('prenom', profileData.prenom || '');
+    formData.append('email', profileData.email || '');
+    formData.append('poste', profileData.poste || '');
+    formData.append('matricule', profileData.matricule || '');
+    
+    // Ajouter la photo seulement si c'est un fichier
+    if (profileData.photo instanceof File) {
+      formData.append('photo', profileData.photo);
     }
 
-    const response = await api.put('/auth/profile', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
+    const response = await api.put('/profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
-    return response.data;
+
+    // Normaliser la réponse
+    return {
+      ...response.data,
+      photoUrl: response.data.photoDeProfil || response.data.photoUrl,
+    };
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
 };
 
 export const requestPasswordReset = async (email) => {
-    const response = await api.post('/password-reset', { email });
+  try {
+    const response = await api.post('/request-password-reset', { email });
     return response.data;
-};
-
-export const logout = async () => {
-    const response = await api.post('/auth/logout');
-    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
 };
 
 export default api;
-
-// Explication détaillé du code api.js
-// on importe la librairie axios pour faire des requêtes HTTP
-//on crée la variable qui va stocké l'url de la base de l'api
-//on crée une instance d'axios avec l'url de base, le type de contenu et un timeout de 10 secondes
