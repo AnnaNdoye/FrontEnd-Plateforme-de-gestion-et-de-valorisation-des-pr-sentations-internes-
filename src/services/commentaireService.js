@@ -23,6 +23,7 @@ class CommentaireService {
     }
   }
 
+  
   async updateCommentaire(idCommentaire, contenu) {
     try {
       const response = await apiClient.put(`/commentaires/${idCommentaire}`, null, {
