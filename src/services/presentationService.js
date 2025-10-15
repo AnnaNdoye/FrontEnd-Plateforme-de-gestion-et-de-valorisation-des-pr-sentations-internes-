@@ -3,24 +3,22 @@ import { apiClient } from './api';
 const BASE_URL = '/presentations';
 
 class PresentationService {
-
+  
   // Créer une nouvelle présentation
   async createPresentation(presentationData, fichiers = []) {
     try {
       const formData = new FormData();
       const userId = localStorage.getItem('userId');
-
+      
       formData.append('idUtilisateur', userId);
       formData.append('datePresentation', presentationData.datePresentation);
-      formData.append('heureDebut', presentationData.heureDebut);
-      formData.append('heureFin', presentationData.heureFin);
       formData.append('sujet', presentationData.sujet);
       formData.append('statut', presentationData.statut);
-
+      
       if (presentationData.description) {
         formData.append('description', presentationData.description);
       }
-
+      
       if (fichiers && fichiers.length > 0) {
         fichiers.forEach((file) => {
           formData.append('fichiers', file);
@@ -102,18 +100,16 @@ class PresentationService {
     try {
       const formData = new FormData();
       const userId = localStorage.getItem('userId');
-
+      
       formData.append('idUtilisateur', userId);
       formData.append('datePresentation', presentationData.datePresentation);
-      formData.append('heureDebut', presentationData.heureDebut);
-      formData.append('heureFin', presentationData.heureFin);
       formData.append('sujet', presentationData.sujet);
       formData.append('statut', presentationData.statut);
-
+      
       if (presentationData.description) {
         formData.append('description', presentationData.description);
       }
-
+      
       if (fichiers && fichiers.length > 0) {
         fichiers.forEach((file) => {
           formData.append('fichiers', file);
@@ -168,31 +164,25 @@ class PresentationService {
     }
   }
 
-  // Formater les présentations pour le calendrier
+  // Formater les présentations pour le calendrier (SANS HEURE)
   formatPresentationsForCalendar(presentations) {
     return presentations.map(presentation => {
-      // Créer des objets Date à partir des chaînes ISO
-      const startDate = new Date(presentation.heureDebut);
-      const endDate = new Date(presentation.heureFin);
+      // Date uniquement, pas d'heure - journée complète
+      const date = new Date(presentation.datePresentation);
 
       return {
         id: presentation.idPresentation,
         title: presentation.sujet,
-        start: startDate,
-        end: endDate,
+        start: date,
+        end: date, // Même date pour début et fin
+        allDay: true, // Important : événement sur toute la journée
         description: presentation.description,
         status: presentation.statut,
         subject: presentation.sujet,
         datePresentation: presentation.datePresentation,
-        heureDebut: presentation.heureDebut,
-        heureFin: presentation.heureFin,
         statut: presentation.statut,
         utilisateur: presentation.utilisateur,
-        fichier: presentation.fichier,
-        // Couleur selon le statut
-        style: {
-          backgroundColor: this.getStatusColor(presentation.statut)
-        }
+        fichier: presentation.fichier
       };
     });
   }

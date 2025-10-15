@@ -4,8 +4,6 @@ import { FaList, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaEdit, F
 import Barre from './Barre';
 import Recherche from './Recherche';
 import presentationService from '../../services/presentationService';
-import voteService from '../../services/voteService';
-import commentaireService from '../../services/commentaireService';
 
 const Container = styled.div`
   display: flex;
@@ -189,8 +187,6 @@ const PresentationsPage = () => {
     sujet: '',
     description: '',
     datePresentation: '',
-    heureDebut: '',
-    heureFin: '',
     statut: 'Planifié',
     fichiers: []
   });
@@ -211,8 +207,7 @@ const PresentationsPage = () => {
       setPresentations(data);
       setFilteredPresentations(data);
 
-      // Charger les stats pour chaque présentation
-      const statsPromises = data.map(p =>
+      const statsPromises = data.map(p => 
         presentationService.getPresentationStats(p.idPresentation)
           .then(stats => ({ id: p.idPresentation, stats }))
           .catch(() => ({ id: p.idPresentation, stats: { nombreVotes: 0, moyenneVotes: 0, nombreCommentaires: 0 } }))
@@ -237,7 +232,7 @@ const PresentationsPage = () => {
       setFilteredPresentations(presentations.filter(p =>
         p.sujet.toLowerCase().includes(term.toLowerCase()) ||
         (p.description && p.description.toLowerCase().includes(term.toLowerCase())) ||
-        (p.utilisateur &&
+        (p.utilisateur && 
           (`${p.utilisateur.prenom} ${p.utilisateur.nom}`.toLowerCase().includes(term.toLowerCase()) ||
            p.utilisateur.departement.toLowerCase().includes(term.toLowerCase())))
       ));
@@ -274,20 +269,14 @@ const PresentationsPage = () => {
 
   const statusOrder = ['Planifié', 'Confirmé', 'Terminé', 'Annulé'];
 
-  const formatTime = (timeStr) => {
-    if (!timeStr) return '';
-    const date = new Date(timeStr);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  };
-
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString('fr-FR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
     });
   };
 
@@ -302,24 +291,11 @@ const PresentationsPage = () => {
       sujet: presentation.sujet,
       description: presentation.description || '',
       datePresentation: presentation.datePresentation,
-      heureDebut: formatTimeForInput(presentation.heureDebut),
-      heureFin: formatTimeForInput(presentation.heureFin),
       statut: presentation.statut,
       fichiers: []
     });
     setShowForm(true);
     setShowModal(false);
-  };
-
-  const formatTimeForInput = (timeStr) => {
-    if (!timeStr) return '';
-    const date = new Date(timeStr);
-    const year = String(date.getFullYear());
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   const handleDelete = async (presentation) => {
@@ -339,23 +315,17 @@ const PresentationsPage = () => {
   };
 
   const handleSavePresentation = async () => {
-    if (!formData.sujet || !formData.datePresentation || !formData.heureDebut || !formData.heureFin) {
+    if (!formData.sujet || !formData.datePresentation) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-
+    
     try {
-      const heureDebut = formData.heureDebut.includes('T')
-        ? formData.heureDebut + ':00'
-        : `${formData.datePresentation}T${formData.heureDebut}:00`;
-      const heureFin = formData.heureFin.includes('T')
-        ? formData.heureFin + ':00'
-        : `${formData.datePresentation}T${formData.heureFin}:00`;
-
       const dataToSend = {
-        ...formData,
-        heureDebut,
-        heureFin
+        datePresentation: formData.datePresentation,
+        sujet: formData.sujet,
+        description: formData.description,
+        statut: formData.statut
       };
 
       if (editingPresentation) {
@@ -363,7 +333,7 @@ const PresentationsPage = () => {
       } else {
         await presentationService.createPresentation(dataToSend, formData.fichiers);
       }
-
+      
       await loadPresentations();
       setShowForm(false);
       setEditingPresentation(null);
@@ -371,8 +341,6 @@ const PresentationsPage = () => {
         sujet: '',
         description: '',
         datePresentation: '',
-        heureDebut: '',
-        heureFin: '',
         statut: 'Planifié',
         fichiers: []
       });
@@ -388,8 +356,6 @@ const PresentationsPage = () => {
       sujet: '',
       description: '',
       datePresentation: '',
-      heureDebut: '',
-      heureFin: '',
       statut: 'Planifié',
       fichiers: []
     });
@@ -407,14 +373,14 @@ const PresentationsPage = () => {
         <Header>
           <h1>Présentations</h1>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button onClick={handleNewPresentation} style={{
-              padding: '8px 16px',
-              backgroundColor: '#FF8C42',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
+            <button onClick={handleNewPresentation} style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#FF8C42', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
               gap: '5px',
               cursor: 'pointer',
               fontWeight: 'bold'
@@ -442,8 +408,8 @@ const PresentationsPage = () => {
                     {groupedPresentations[status].map(presentation => {
                       const stats = presentationStats[presentation.idPresentation] || { nombreVotes: 0, moyenneVotes: 0, nombreCommentaires: 0 };
                       return (
-                        <PresentationCard
-                          key={presentation.idPresentation}
+                        <PresentationCard 
+                          key={presentation.idPresentation} 
                           statusColor={getStatusColor(status)}
                           onClick={() => openDetails(presentation)}
                         >
@@ -460,9 +426,6 @@ const PresentationsPage = () => {
                           <PresentationInfo>
                             <InfoRow>
                               <strong>Date:</strong> {formatDate(presentation.datePresentation)}
-                            </InfoRow>
-                            <InfoRow>
-                              <strong>Horaire:</strong> {formatTime(presentation.heureDebut)} - {formatTime(presentation.heureFin)}
                             </InfoRow>
                             {presentation.utilisateur && (
                               <>
@@ -506,31 +469,31 @@ const PresentationsPage = () => {
 
         {/* Modal Détails */}
         {showModal && selectedPresentation && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: 'rgba(0,0,0,0.5)', 
+            zIndex: 1000, 
+            display: 'flex', 
+            alignItems: 'center', 
             justifyContent: 'center',
             padding: '20px'
           }}>
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
+            <div style={{ 
+              background: 'white', 
+              padding: '2rem', 
+              borderRadius: '12px', 
               maxWidth: '600px',
               width: '100%',
-              maxHeight: '90vh',
+              maxHeight: '90vh', 
               overflowY: 'auto',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h2 style={{ color: '#FF6B1A', marginBottom: '1.5rem' }}>Détails de la présentation</h2>
-
+              
               <div style={{ marginBottom: '1rem' }}>
                 <strong style={{ color: '#666' }}>Sujet:</strong>
                 <p style={{ marginTop: '0.3rem', fontSize: '1.1rem' }}>{selectedPresentation.sujet}</p>
@@ -544,11 +507,6 @@ const PresentationsPage = () => {
               <div style={{ marginBottom: '1rem' }}>
                 <strong style={{ color: '#666' }}>Date:</strong>
                 <p style={{ marginTop: '0.3rem' }}>{formatDate(selectedPresentation.datePresentation)}</p>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#666' }}>Heure:</strong>
-                <p style={{ marginTop: '0.3rem' }}>{formatTime(selectedPresentation.heureDebut)} - {formatTime(selectedPresentation.heureFin)}</p>
               </div>
 
               {selectedPresentation.utilisateur && (
@@ -603,31 +561,31 @@ const PresentationsPage = () => {
               )}
 
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
-                <button onClick={() => { setShowModal(false); setSelectedPresentation(null); }} style={{
-                  padding: '10px 20px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
+                <button onClick={() => { setShowModal(false); setSelectedPresentation(null); }} style={{ 
+                  padding: '10px 20px', 
+                  backgroundColor: '#6c757d', 
+                  color: 'white', 
+                  border: 'none', 
                   borderRadius: '6px',
                   cursor: 'pointer'
                 }}>
                   Fermer
                 </button>
-                <button onClick={() => handleEdit(selectedPresentation)} style={{
-                  padding: '10px 20px',
-                  backgroundColor: '#FF8C42',
-                  color: 'white',
-                  border: 'none',
+                <button onClick={() => handleEdit(selectedPresentation)} style={{ 
+                  padding: '10px 20px', 
+                  backgroundColor: '#FF8C42', 
+                  color: 'white', 
+                  border: 'none', 
                   borderRadius: '6px',
                   cursor: 'pointer'
                 }}>
                   Modifier
                 </button>
-                <button onClick={() => handleDelete(selectedPresentation)} style={{
-                  padding: '10px 20px',
-                  backgroundColor: '#dc3545',
-                  color: 'white',
-                  border: 'none',
+                <button onClick={() => handleDelete(selectedPresentation)} style={{ 
+                  padding: '10px 20px', 
+                  backgroundColor: '#dc3545', 
+                  color: 'white', 
+                  border: 'none', 
                   borderRadius: '6px',
                   cursor: 'pointer'
                 }}>
@@ -640,26 +598,26 @@ const PresentationsPage = () => {
 
         {/* Modal Formulaire */}
         {showForm && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: 'rgba(0,0,0,0.5)', 
+            zIndex: 1000, 
+            display: 'flex', 
+            alignItems: 'center', 
             justifyContent: 'center',
             padding: '20px'
           }}>
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              maxWidth: '600px',
+            <div style={{ 
+              background: 'white', 
+              padding: '2rem', 
+              borderRadius: '12px', 
+              maxWidth: '600px', 
               width: '100%',
-              maxHeight: '90vh',
+              maxHeight: '90vh', 
               overflowY: 'auto',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
@@ -671,13 +629,13 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Sujet <span style={{ color: 'red' }}>*</span>
                 </label>
-                <input
-                  type="text"
-                  value={formData.sujet}
-                  onChange={(e) => setFormData({...formData, sujet: e.target.value})}
+                <input 
+                  type="text" 
+                  value={formData.sujet} 
+                  onChange={(e) => setFormData({...formData, sujet: e.target.value})} 
                   style={inputStyle}
                   placeholder="Titre de la présentation"
-                  required
+                  required 
                 />
               </div>
 
@@ -685,9 +643,9 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Description
                 </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                <textarea 
+                  value={formData.description} 
+                  onChange={(e) => setFormData({...formData, description: e.target.value})} 
                   style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
                   placeholder="Description détaillée"
                 />
@@ -697,38 +655,12 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Date <span style={{ color: 'red' }}>*</span>
                 </label>
-                <input
-                  type="date"
-                  value={formData.datePresentation}
-                  onChange={(e) => setFormData({...formData, datePresentation: e.target.value})}
+                <input 
+                  type="date" 
+                  value={formData.datePresentation} 
+                  onChange={(e) => setFormData({...formData, datePresentation: e.target.value})} 
                   style={inputStyle}
-                  required
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
-                  Heure début <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.heureDebut}
-                  onChange={(e) => setFormData({...formData, heureDebut: e.target.value})}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
-                  Heure fin <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.heureFin}
-                  onChange={(e) => setFormData({...formData, heureFin: e.target.value})}
-                  style={inputStyle}
-                  required
+                  required 
                 />
               </div>
 
@@ -736,9 +668,9 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Statut <span style={{ color: 'red' }}>*</span>
                 </label>
-                <select
-                  value={formData.statut}
-                  onChange={(e) => setFormData({...formData, statut: e.target.value})}
+                <select 
+                  value={formData.statut} 
+                  onChange={(e) => setFormData({...formData, statut: e.target.value})} 
                   style={inputStyle}
                   required
                 >
@@ -753,10 +685,10 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Fichiers (optionnel)
                 </label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => setFormData({...formData, fichiers: Array.from(e.target.files)})}
+                <input 
+                  type="file" 
+                  multiple 
+                  onChange={(e) => setFormData({...formData, fichiers: Array.from(e.target.files)})} 
                   style={inputStyle}
                 />
                 {formData.fichiers.length > 0 && (
@@ -769,26 +701,24 @@ const PresentationsPage = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
-                <button
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingPresentation(null);
+                <button 
+                  onClick={() => { 
+                    setShowForm(false); 
+                    setEditingPresentation(null); 
                     setFormData({
                       sujet: '',
                       description: '',
                       datePresentation: '',
-                      heureDebut: '',
-                      heureFin: '',
                       statut: 'Planifié',
                       fichiers: []
                     });
-                  }}
-                  style={{
-                    padding: '10px 20px',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
+                  }} 
+                  style={{ 
+                    padding: '10px 20px', 
+                    backgroundColor: '#6c757d', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '6px', 
                     fontSize: '1rem',
                     cursor: 'pointer',
                     fontWeight: 'bold'
@@ -796,14 +726,14 @@ const PresentationsPage = () => {
                 >
                   Annuler
                 </button>
-                <button
-                  onClick={handleSavePresentation}
-                  style={{
-                    padding: '10px 20px',
-                    backgroundColor: '#FF8C42',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
+                <button 
+                  onClick={handleSavePresentation} 
+                  style={{ 
+                    padding: '10px 20px', 
+                    backgroundColor: '#FF8C42', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '6px', 
                     fontSize: '1rem',
                     cursor: 'pointer',
                     fontWeight: 'bold'

@@ -74,7 +74,7 @@ const StatIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
+  
   svg {
     font-size: 1.8rem;
     color: ${props => props.color || '#FF8C42'};
@@ -83,14 +83,14 @@ const StatIcon = styled.div`
 
 const StatInfo = styled.div`
   flex: 1;
-
+  
   h3 {
     margin: 0 0 0.3rem 0;
     font-size: 2rem;
     color: #333;
     font-weight: bold;
   }
-
+  
   p {
     margin: 0;
     color: #666;
@@ -316,23 +316,16 @@ const Dashboard = () => {
                 {stats.upcomingPresentations.slice(0, 5).map((pres, index) => (
                   <UpcomingItem key={index} color={getStatusColor(pres.statut?.toLowerCase())}>
                     <h4>{pres.sujet}</h4>
-                    <p><strong>Date :</strong> {new Date(pres.datePresentation).toLocaleDateString('fr-FR', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}</p>
-                    <p><strong>Heure :</strong> {new Date(pres.heureDebut).toLocaleTimeString('fr-FR', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })} - {new Date(pres.heureFin).toLocaleTimeString('fr-FR', {
-                      hour: '2-digit',
-                      minute: '2-digit'
+                    <p><strong>Date :</strong> {new Date(pres.datePresentation).toLocaleDateString('fr-FR', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
                     })}</p>
                     <p><strong>Présentateur :</strong> {pres.utilisateur?.prenom} {pres.utilisateur?.nom} ({pres.utilisateur?.departement})</p>
-                    <p><strong>Statut :</strong> <span style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
+                    <p><strong>Statut :</strong> <span style={{ 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '4px', 
                       backgroundColor: getStatusColor(pres.statut?.toLowerCase()),
                       color: 'white',
                       fontSize: '0.85rem',
