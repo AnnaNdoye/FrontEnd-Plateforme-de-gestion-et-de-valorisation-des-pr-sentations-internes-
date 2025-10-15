@@ -46,8 +46,6 @@ const Calendrier = () => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({
     datePresentation: '',
-    heureDebut: '',
-    heureFin: '',
     sujet: '',
     description: '',
     statut: 'Planifié',
@@ -88,19 +86,11 @@ const Calendrier = () => {
   };
 
   const handleSelectSlot = useCallback((slotInfo) => {
-    const startDateTime = slotInfo.start;
-    const endDateTime = slotInfo.end || new Date(startDateTime.getTime() + 60 * 60 * 1000);
-
-    // Format: yyyy-MM-dd
-    const dateStr = format(startDateTime, 'yyyy-MM-dd');
-    // Format: yyyy-MM-ddTHH:mm:ss
-    const startStr = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
-    const endStr = format(endDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+    const selectedDate = slotInfo.start;
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
     setEventForm({
       datePresentation: dateStr,
-      heureDebut: startStr,
-      heureFin: endStr,
       sujet: '',
       description: '',
       statut: 'Planifié',
@@ -113,16 +103,10 @@ const Calendrier = () => {
   const handleSelectEvent = useCallback((event) => {
     setSelectedEvent(event);
     
-    const start = event.start;
-    const end = event.end;
-    const datePresentation = start ? format(start, 'yyyy-MM-dd') : '';
-    const heureDebut = start ? format(start, "yyyy-MM-dd'T'HH:mm:ss") : '';
-    const heureFin = end ? format(end, "yyyy-MM-dd'T'HH:mm:ss") : '';
+    const datePresentation = event.start ? format(event.start, 'yyyy-MM-dd') : '';
     
     setEventForm({
       datePresentation,
-      heureDebut,
-      heureFin,
       sujet: event.subject || event.title || '',
       description: event.description || '',
       statut: event.status || event.statut || 'Planifié',
@@ -132,9 +116,9 @@ const Calendrier = () => {
   }, []);
 
   const handleSaveEvent = async () => {
-    const { datePresentation, heureDebut, heureFin, sujet, description, statut, fichiers } = eventForm;
+    const { datePresentation, sujet, description, statut, fichiers } = eventForm;
     
-    if (!datePresentation || !heureDebut || !heureFin || !sujet || !statut || !userId) {
+    if (!datePresentation || !sujet || !statut || !userId) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }
@@ -144,8 +128,6 @@ const Calendrier = () => {
 
       const presentationData = {
         datePresentation,
-        heureDebut,
-        heureFin,
         sujet,
         description,
         statut
@@ -163,8 +145,6 @@ const Calendrier = () => {
       setSelectedEvent(null);
       setEventForm({
         datePresentation: '',
-        heureDebut: '',
-        heureFin: '',
         sujet: '',
         description: '',
         statut: 'Planifié',
@@ -189,8 +169,6 @@ const Calendrier = () => {
         setSelectedEvent(null);
         setEventForm({
           datePresentation: '',
-          heureDebut: '',
-          heureFin: '',
           sujet: '',
           description: '',
           statut: 'Planifié',
@@ -210,8 +188,6 @@ const Calendrier = () => {
     setSelectedEvent(null);
     setEventForm({
       datePresentation: '',
-      heureDebut: '',
-      heureFin: '',
       sujet: '',
       description: '',
       statut: 'Planifié',
@@ -333,7 +309,7 @@ const Calendrier = () => {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <div>Chargement des présentations...</div>
-            </div>
+          </div>
         ) : (
           <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(255, 140, 66, 0.1)' }}>
             <Calendar
@@ -424,32 +400,6 @@ const Calendrier = () => {
                   type="date"
                   value={eventForm.datePresentation}
                   onChange={(e) => setEventForm({ ...eventForm, datePresentation: e.target.value })}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
-                  Heure de début <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={eventForm.heureDebut}
-                  onChange={(e) => setEventForm({ ...eventForm, heureDebut: e.target.value })}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
-                  Heure de fin <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={eventForm.heureFin}
-                  onChange={(e) => setEventForm({ ...eventForm, heureFin: e.target.value })}
                   style={inputStyle}
                   required
                 />

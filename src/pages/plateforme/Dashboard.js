@@ -322,13 +322,6 @@ const Dashboard = () => {
                       month: 'long', 
                       day: 'numeric' 
                     })}</p>
-                    <p><strong>Heure :</strong> {new Date(pres.heureDebut).toLocaleTimeString('fr-FR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })} - {new Date(pres.heureFin).toLocaleTimeString('fr-FR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}</p>
                     <p><strong>Présentateur :</strong> {pres.utilisateur?.prenom} {pres.utilisateur?.nom} ({pres.utilisateur?.departement})</p>
                     <p><strong>Statut :</strong> <span style={{ 
                       padding: '0.2rem 0.5rem', 
@@ -373,3 +366,5 @@ const Dashboard = () => {
 }
 
 export default Dashboard;
+
+
