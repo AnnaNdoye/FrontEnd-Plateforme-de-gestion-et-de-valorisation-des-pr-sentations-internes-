@@ -442,10 +442,10 @@ const Calendrier = () => {
                   style={inputStyle}
                   required
                 >
-                  <option value="Planifié">Planifié</option>
-                  <option value="Confirmé">Confirmé</option>
-                  <option value="Terminé">Terminé</option>
-                  <option value="Annulé">Annulé</option>
+                  <option value="Planifie">Planifié</option>
+                  <option value="Confirme">Confirmé</option>
+                  <option value="Termine">Terminé</option>
+                  <option value="Annule">Annulé</option>
                 </select>
               </div>
 

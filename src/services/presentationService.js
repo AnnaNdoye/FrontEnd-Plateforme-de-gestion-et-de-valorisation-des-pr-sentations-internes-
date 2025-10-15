@@ -190,10 +190,10 @@ class PresentationService {
   // Obtenir la couleur selon le statut
   getStatusColor(statut) {
     const colors = {
-      'Planifié': '#FF8C42',
+      'Planifie': '#FF8C42',
       'Confirmé': '#28a745',
-      'Terminé': '#007bff',
-      'Annulé': '#dc3545'
+      'Termine': '#007bff',
+      'Annule': '#dc3545'
     };
     return colors[statut] || '#FF8C42';
   }
@@ -201,10 +201,10 @@ class PresentationService {
   // Obtenir les statuts disponibles
   getStatuts() {
     return [
-      { value: 'Planifié', label: 'Planifié', color: '#FF8C42' },
+      { value: 'Planifie', label: 'Planifié', color: '#FF8C42' },
       { value: 'Confirmé', label: 'Confirmé', color: '#28a745' },
-      { value: 'Terminé', label: 'Terminé', color: '#007bff' },
-      { value: 'Annulé', label: 'Annulé', color: '#dc3545' }
+      { value: 'Termine', label: 'Terminé', color: '#007bff' },
+      { value: 'Annule', label: 'Annulé', color: '#dc3545' }
     ];
   }
 }

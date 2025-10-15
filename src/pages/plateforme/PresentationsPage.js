@@ -187,7 +187,7 @@ const PresentationsPage = () => {
     sujet: '',
     description: '',
     datePresentation: '',
-    statut: 'Planifié',
+    statut: 'Planifie',
     fichiers: []
   });
   const [presentationStats, setPresentationStats] = useState({});
@@ -241,20 +241,20 @@ const PresentationsPage = () => {
 
   const getStatusIcon = (status) => {
     switch(status) {
-      case 'Planifié': return <FaClock />;
+      case 'Planifie': return <FaClock />;
       case 'Confirmé': return <FaCheckCircle />;
-      case 'Terminé': return <FaCheckCircle />;
-      case 'Annulé': return <FaTimesCircle />;
+      case 'Termine': return <FaCheckCircle />;
+      case 'Annule': return <FaTimesCircle />;
       default: return <FaCalendarAlt />;
     }
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      'Planifié': '#FF8C42',
+      'Planifie': '#FF8C42',
       'Confirmé': '#28a745',
-      'Terminé': '#007bff',
-      'Annulé': '#dc3545'
+      'Termine': '#007bff',
+      'Annule': '#dc3545'
     };
     return colors[status] || '#FF8C42';
   };
@@ -267,7 +267,7 @@ const PresentationsPage = () => {
     return acc;
   }, {});
 
-  const statusOrder = ['Planifié', 'Confirmé', 'Terminé', 'Annulé'];
+  const statusOrder = ['Planifie', 'Confirmé', 'Termine', 'Annule'];
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -341,7 +341,7 @@ const PresentationsPage = () => {
         sujet: '',
         description: '',
         datePresentation: '',
-        statut: 'Planifié',
+        statut: 'Planifie',
         fichiers: []
       });
     } catch (error) {
@@ -356,7 +356,7 @@ const PresentationsPage = () => {
       sujet: '',
       description: '',
       datePresentation: '',
-      statut: 'Planifié',
+      statut: 'Planifie',
       fichiers: []
     });
     setShowForm(true);
@@ -668,16 +668,16 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Statut <span style={{ color: 'red' }}>*</span>
                 </label>
-                <select 
-                  value={formData.statut} 
-                  onChange={(e) => setFormData({...formData, statut: e.target.value})} 
+                <select
+                  value={formData.statut}
+                  onChange={(e) => setFormData({...formData, statut: e.target.value})}
                   style={inputStyle}
                   required
                 >
-                  <option value="Planifié">Planifié</option>
+                  <option value="Planifie">Planifié</option>
                   <option value="Confirmé">Confirmé</option>
-                  <option value="Terminé">Terminé</option>
-                  <option value="Annulé">Annulé</option>
+                  <option value="Termine">Terminé</option>
+                  <option value="Annule">Annulé</option>
                 </select>
               </div>
 
