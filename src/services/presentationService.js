@@ -49,7 +49,7 @@ class PresentationService {
     }
   }
 
-  // Obtenir une présentation par ID
+  // Obtenir une présentation par ID de la présentation
   async getPresentationById(id) {
     try {
       const response = await apiClient.get(`${BASE_URL}/${id}`);
