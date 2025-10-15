@@ -31,6 +31,7 @@ class PresentationService {
         },
       });
 
+      
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création:', error);
