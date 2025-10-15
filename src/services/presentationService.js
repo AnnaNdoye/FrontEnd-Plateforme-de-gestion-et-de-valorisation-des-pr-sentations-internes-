@@ -31,7 +31,6 @@ class PresentationService {
         },
       });
 
-      
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création:', error);
@@ -39,7 +38,7 @@ class PresentationService {
     }
   }
 
-  // Obtenir toutes les présentations
+  // Obtenir toutes les présentations avec get
   async getAllPresentations() {
     try {
       const response = await apiClient.get(`${BASE_URL}/all`);
