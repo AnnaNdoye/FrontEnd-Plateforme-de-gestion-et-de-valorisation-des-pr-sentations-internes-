@@ -60,7 +60,7 @@ class PresentationService {
     }
   }
 
-  // Obtenir mes présentations
+  // Obtenir mes présentations (associées à l'utilisateur connecté)
   async getMyPresentations() {
     try {
       const response = await apiClient.get(`${BASE_URL}/my`);
