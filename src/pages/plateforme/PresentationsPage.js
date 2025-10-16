@@ -277,18 +277,23 @@ const PresentationsPage = () => {
   const formatTime = (timeStr) => {
     if (!timeStr) return '';
     const date = new Date(timeStr);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
   };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const openDetails = (presentation) => {
@@ -460,9 +465,6 @@ const PresentationsPage = () => {
                           <PresentationInfo>
                             <InfoRow>
                               <strong>Date:</strong> {formatDate(presentation.datePresentation)}
-                            </InfoRow>
-                            <InfoRow>
-                              <strong>Horaire:</strong> {formatTime(presentation.heureDebut)} - {formatTime(presentation.heureFin)}
                             </InfoRow>
                             {presentation.utilisateur && (
                               <>
@@ -701,32 +703,6 @@ const PresentationsPage = () => {
                   type="date" 
                   value={formData.datePresentation} 
                   onChange={(e) => setFormData({...formData, datePresentation: e.target.value})} 
-                  style={inputStyle}
-                  required 
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
-                  Heure début <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input 
-                  type="datetime-local" 
-                  value={formData.heureDebut} 
-                  onChange={(e) => setFormData({...formData, heureDebut: e.target.value})} 
-                  style={inputStyle}
-                  required 
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
-                  Heure fin <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input 
-                  type="datetime-local" 
-                  value={formData.heureFin} 
-                  onChange={(e) => setFormData({...formData, heureFin: e.target.value})} 
                   style={inputStyle}
                   required 
                 />
