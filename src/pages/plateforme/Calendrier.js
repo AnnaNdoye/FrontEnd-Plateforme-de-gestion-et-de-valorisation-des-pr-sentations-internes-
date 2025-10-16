@@ -54,6 +54,8 @@ const Calendrier = () => {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [currentView, setCurrentView] = useState('month');
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     loadPresentations();
@@ -322,7 +324,10 @@ const Calendrier = () => {
               onSelectEvent={handleSelectEvent}
               selectable
               views={['month', 'week', 'day']}
-              defaultView="month"
+              view={currentView}
+              date={currentDate}
+              onView={setCurrentView}
+              onNavigate={setCurrentDate}
               culture="fr"
               components={{
                 toolbar: CustomToolbar,
