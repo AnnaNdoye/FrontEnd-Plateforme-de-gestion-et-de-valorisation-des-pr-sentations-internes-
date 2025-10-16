@@ -28,6 +28,9 @@ const Header = styled.div`
   border-radius: 12px;
   color: white;
   box-shadow: 0 4px 20px rgba(255, 140, 66, 0.3);
+  h1 {
+    margin: 0;
+  }
 `;
 
 const WelcomeText = styled.div`

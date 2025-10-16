@@ -26,11 +26,13 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
-
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%);
+  border-radius: 8px;
+  color: white;
   h1 {
-    font-size: 2.5rem;
-    color: #333;
+    margin: 0;
   }
 `;
 
@@ -187,6 +189,7 @@ const Profil = () => {
         email: data.email || '',
         poste: data.poste || '',
         matricule: data.matricule || '',
+        departement: data.departement || '',
         dateInscription: formatDate(data.dateInscription),
         photo: data.photoUrl || null,
       };
@@ -270,6 +273,7 @@ const Profil = () => {
         email: response.email || '',
         poste: response.poste || '',
         matricule: response.matricule || '',
+        departement: response.departement || '',
         dateInscription: formatDate(response.dateInscription),
         photo: response.photoUrl || null,
       };
@@ -316,10 +320,11 @@ const Profil = () => {
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
       <Content>
         <Header>
-          <FaList 
-            onClick={toggleMenu} 
-            style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#ff8113' }} 
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
+            <h1 style={{ margin: 0 }}>Profil</h1>
+          </div>
+
         </Header>
         <ProfileCard>
           {loading ? (
@@ -364,6 +369,10 @@ const Profil = () => {
                     <Label><FaIdCard /> Matricule:</Label>
                     <Input name="matricule" value={profile.matricule} onChange={handleChange} />
                   </InfoItem>
+                  <InfoItem key="departement">
+                    <Label><FaBriefcase /> Département:</Label>
+                    <Value>{profile.departement || 'Non spécifié'}</Value>
+                  </InfoItem>
                   <InfoItem key="dateInscription">
                     <Label><FaCalendarAlt /> Date d'inscription:</Label>
                     <Value>{profile.dateInscription}</Value>
@@ -399,6 +408,10 @@ const Profil = () => {
                   <InfoItem key="matricule">
                     <Label><FaIdCard /> Matricule:</Label>
                     <Value>{profile.matricule}</Value>
+                  </InfoItem>
+                  <InfoItem key="departement">
+                    <Label><FaBriefcase /> Département:</Label>
+                    <Value>{profile.departement || 'Non spécifié'}</Value>
                   </InfoItem>
                   <InfoItem key="dateInscription">
                     <Label><FaCalendarAlt /> Date d'inscription:</Label>

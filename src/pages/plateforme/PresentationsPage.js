@@ -33,6 +33,9 @@ const Header = styled.div`
   background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%);
   border-radius: 8px;
   color: white;
+  h1 {
+    margin: 0;
+  }
 `;
 
 const StatusSection = styled.div`
@@ -239,7 +242,7 @@ const PresentationsPage = () => {
         (p.description && p.description.toLowerCase().includes(term.toLowerCase())) ||
         (p.utilisateur && 
           (`${p.utilisateur.prenom} ${p.utilisateur.nom}`.toLowerCase().includes(term.toLowerCase()) ||
-           p.utilisateur.departement.toLowerCase().includes(term.toLowerCase())))
+            p.utilisateur.departement.toLowerCase().includes(term.toLowerCase())))
       ));
     }
   };
@@ -410,6 +413,7 @@ const PresentationsPage = () => {
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
       <Content>
         <Header>
+          <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
           <h1>Présentations</h1>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button onClick={handleNewPresentation} style={{ 
@@ -426,7 +430,6 @@ const PresentationsPage = () => {
             }}>
               <FaPlus /> Nouvelle
             </button>
-            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
           </div>
         </Header>
 

@@ -26,6 +26,9 @@ const Header = styled.div`
     background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%);
     border-radius: 8px;
     color: white;
+    h1 {
+        margin: 0;
+    }
 `;
 
 const NotificationList = styled.ul`

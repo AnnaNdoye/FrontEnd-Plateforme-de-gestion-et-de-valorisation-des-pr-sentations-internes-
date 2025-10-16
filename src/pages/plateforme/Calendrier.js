@@ -30,6 +30,9 @@ const Header = styled.div`
   background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%);
   border-radius: 8px;
   color: white;
+  h1 {
+    margin: 0;
+  }
 `;
 
 const localizer = dateFnsLocalizer({
@@ -289,8 +292,10 @@ const Calendrier = () => {
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
       <Content>
         <Header>
-          <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
-          <h1 style={{ margin: 0 }}>Calendrier des Présentations</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
+            <h1>Calendrier</h1>
+          </div>
         </Header>
 
         <div style={{ marginBottom: '20px' }}>
