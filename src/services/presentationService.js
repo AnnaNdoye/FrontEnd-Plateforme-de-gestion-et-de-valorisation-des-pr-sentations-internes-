@@ -4,6 +4,28 @@ const BASE_URL = '/presentations';
 
 class PresentationService {
   
+  // Mapper les statuts du frontend (avec accents) vers le backend (sans accents)
+  mapStatusToBackend(status) {
+    const mapping = {
+      'Planifié': 'Planifie',
+      'Confirmé': 'Confirme',
+      'Terminé': 'Termine',
+      'Annulé': 'Annule'
+    };
+    return mapping[status] || status;
+  }
+
+  // Mapper les statuts du backend (sans accents) vers le frontend (avec accents)
+  mapStatusToFrontend(status) {
+    const mapping = {
+      'Planifie': 'Planifié',
+      'Confirme': 'Confirmé',
+      'Termine': 'Terminé',
+      'Annule': 'Annulé'
+    };
+    return mapping[status] || status;
+  }
+  
   // Créer une nouvelle présentation
   async createPresentation(presentationData, fichiers = []) {
     try {
@@ -13,7 +35,8 @@ class PresentationService {
       formData.append('idUtilisateur', userId);
       formData.append('datePresentation', presentationData.datePresentation);
       formData.append('sujet', presentationData.sujet);
-      formData.append('statut', presentationData.statut);
+      // CORRECTION : mapper le statut vers le backend
+      formData.append('statut', this.mapStatusToBackend(presentationData.statut));
       
       if (presentationData.description) {
         formData.append('description', presentationData.description);
@@ -42,7 +65,11 @@ class PresentationService {
   async getAllPresentations() {
     try {
       const response = await apiClient.get(`${BASE_URL}/all`);
-      return response.data;
+      // CORRECTION : mapper les statuts pour l'affichage
+      return response.data.map(pres => ({
+        ...pres,
+        statut: this.mapStatusToFrontend(pres.statut)
+      }));
     } catch (error) {
       console.error('Erreur lors de la récupération:', error);
       throw error;
@@ -53,7 +80,10 @@ class PresentationService {
   async getPresentationById(id) {
     try {
       const response = await apiClient.get(`${BASE_URL}/${id}`);
-      return response.data;
+      return {
+        ...response.data,
+        statut: this.mapStatusToFrontend(response.data.statut)
+      };
     } catch (error) {
       console.error('Erreur:', error);
       throw error;
@@ -64,7 +94,10 @@ class PresentationService {
   async getMyPresentations() {
     try {
       const response = await apiClient.get(`${BASE_URL}/my`);
-      return response.data;
+      return response.data.map(pres => ({
+        ...pres,
+        statut: this.mapStatusToFrontend(pres.statut)
+      }));
     } catch (error) {
       console.error('Erreur:', error);
       throw error;
@@ -74,8 +107,13 @@ class PresentationService {
   // Obtenir présentations par statut
   async getPresentationsByStatut(statut) {
     try {
-      const response = await apiClient.get(`${BASE_URL}/statut/${statut}`);
-      return response.data;
+      // Mapper le statut avant l'envoi
+      const backendStatus = this.mapStatusToBackend(statut);
+      const response = await apiClient.get(`${BASE_URL}/statut/${backendStatus}`);
+      return response.data.map(pres => ({
+        ...pres,
+        statut: this.mapStatusToFrontend(pres.statut)
+      }));
     } catch (error) {
       console.error('Erreur:', error);
       throw error;
@@ -88,7 +126,10 @@ class PresentationService {
       const response = await apiClient.get(`${BASE_URL}/period`, {
         params: { startDate, endDate }
       });
-      return response.data;
+      return response.data.map(pres => ({
+        ...pres,
+        statut: this.mapStatusToFrontend(pres.statut)
+      }));
     } catch (error) {
       console.error('Erreur:', error);
       throw error;
@@ -104,7 +145,8 @@ class PresentationService {
       formData.append('idUtilisateur', userId);
       formData.append('datePresentation', presentationData.datePresentation);
       formData.append('sujet', presentationData.sujet);
-      formData.append('statut', presentationData.statut);
+      // CORRECTION : mapper le statut vers le backend
+      formData.append('statut', this.mapStatusToBackend(presentationData.statut));
       
       if (presentationData.description) {
         formData.append('description', presentationData.description);
@@ -146,7 +188,10 @@ class PresentationService {
       const response = await apiClient.get(`${BASE_URL}/search`, {
         params: { term }
       });
-      return response.data;
+      return response.data.map(pres => ({
+        ...pres,
+        statut: this.mapStatusToFrontend(pres.statut)
+      }));
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
       throw error;
@@ -164,18 +209,17 @@ class PresentationService {
     }
   }
 
-  // Formater les présentations pour le calendrier (SANS HEURE)
+  // Formater les présentations pour le calendrier
   formatPresentationsForCalendar(presentations) {
     return presentations.map(presentation => {
-      // Date uniquement, pas d'heure - journée complète
       const date = new Date(presentation.datePresentation);
 
       return {
         id: presentation.idPresentation,
         title: presentation.sujet,
         start: date,
-        end: date, // Même date pour début et fin
-        allDay: true, // Important : événement sur toute la journée
+        end: date,
+        allDay: true,
         description: presentation.description,
         status: presentation.statut,
         subject: presentation.sujet,
@@ -187,7 +231,7 @@ class PresentationService {
     });
   }
 
-  // Obtenir la couleur selon le statut
+  // Obtenir la couleur selon le statut (avec accents pour l'affichage)
   getStatusColor(statut) {
     const colors = {
       'Planifié': '#FF8C42',
@@ -198,7 +242,7 @@ class PresentationService {
     return colors[statut] || '#FF8C42';
   }
 
-  // Obtenir les statuts disponibles
+  // Obtenir les statuts disponibles (avec accents pour l'affichage)
   getStatuts() {
     return [
       { value: 'Planifié', label: 'Planifié', color: '#FF8C42' },

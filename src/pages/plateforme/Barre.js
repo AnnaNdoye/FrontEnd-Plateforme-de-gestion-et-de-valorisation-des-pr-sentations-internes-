@@ -29,27 +29,26 @@ const Sidebar = styled.div`
     position: relative;
     z-index: 10;
 
-  /* Style de la barre de défilement */
     &::-webkit-scrollbar {
-    width: 6px;
+        width: 6px;
     }
 
     &::-webkit-scrollbar-thumb {
-    background: #ffffff55;
-    border-radius: 3px;
+        background: #ffffff55;
+        border-radius: 3px;
     }
 
     &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 20%, rgba(255, 215, 0, 0.2) 50%, transparent 80%);
-    background-size: 200% 200%;
-    animation: ${shimmer} 10s linear infinite;
-    z-index: -1;
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 20%, rgba(255, 215, 0, 0.2) 50%, transparent 80%);
+        background-size: 200% 200%;
+        animation: ${shimmer} 10s linear infinite;
+        z-index: -1;
     }
 `;
 
@@ -66,22 +65,23 @@ const LogoContainer = styled.div`
     z-index: 1;
 
     svg {
-    font-size: 2.2rem;
-    color: #FFD700;
-    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
-}
+        font-size: 2.2rem;
+        color: #FFD700;
+        filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+    }
 
     h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(to right, #fff, #FFD700);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 1px;
-    margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #fff, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+        margin: 0;
     }
 `;
 
+// CORRECTION : utiliser $active au lieu de active
 const NavItem = styled.div`
     padding: 1rem 1.2rem;
     margin: 0.3rem 0;
@@ -93,23 +93,23 @@ const NavItem = styled.div`
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    background: ${props => props.active ? 'rgba(255,255,255,0.25)' : 'transparent'};
-    font-weight: ${props => props.active ? '600' : 'normal'};
+    background: ${props => props.$active ? 'rgba(255,255,255,0.25)' : 'transparent'};
+    font-weight: ${props => props.$active ? '600' : 'normal'};
 
     &:hover {
-    background-color: rgba(255,255,255,0.15);
-    
-    svg {
-        color: #FFD700;
-    }
+        background-color: rgba(255,255,255,0.15);
+        
+        svg {
+            color: #FFD700;
+        }
     }
 
     svg {
-    font-size: 1.3rem;
-    transition: all 0.3s ease;
-    color: ${props => props.active ? '#FFD700' : 'white'};
-    min-width: 24px;
-}
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+        color: ${props => props.$active ? '#FFD700' : 'white'};
+        min-width: 24px;
+    }
 `;
 
 const LogoutButton = styled.div`
@@ -128,17 +128,17 @@ const LogoutButton = styled.div`
     backdrop-filter: blur(5px);
 
     &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    
-    svg {
-        color: #FFD700;
-    }
+        background: rgba(255, 255, 255, 0.2);
+        
+        svg {
+            color: #FFD700;
+        }
     }
 
     svg {
-    font-size: 1.3rem;
-    transition: all 0.3s ease;
-}
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+    }
 `;
 
 const ModalOverlay = styled.div`
@@ -168,20 +168,20 @@ const ModalHeader = styled.div`
     padding: 20px 20px 0 20px;
 
     h3 {
-    margin: 0;
-    color: #333;
-    font-size: 1.2rem;
-}
+        margin: 0;
+        color: #333;
+        font-size: 1.2rem;
+    }
 `;
 
 const ModalBody = styled.div`
     padding: 20px;
     
     p {
-    margin: 0;
-    color: #666;
-    line-height: 1.5;
-}
+        margin: 0;
+        color: #666;
+        line-height: 1.5;
+    }
 `;
 
 const ModalFooter = styled.div`
@@ -202,13 +202,13 @@ const CancelButton = styled.button`
     transition: all 0.2s;
     
     &:hover:not(:disabled) {
-    background: #f5f5f5;
-    border-color: #ccc;
+        background: #f5f5f5;
+        border-color: #ccc;
     }
     
     &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 `;
 
@@ -223,13 +223,13 @@ const ConfirmButton = styled.button`
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
-    background: #c82333;
+        background: #c82333;
     }
 
     &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 `;
 
 const Barre = ({ isMenuOpen, onToggleMenu }) => {
@@ -238,7 +238,6 @@ const Barre = ({ isMenuOpen, onToggleMenu }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Close modal on component unmount to prevent DOM errors
     useEffect(() => {
         return () => {
             setShowLogoutModal(false);
@@ -246,109 +245,105 @@ const Barre = ({ isMenuOpen, onToggleMenu }) => {
     }, []);
 
     const getActiveTab = () => {
-    const path = location.pathname;
-    if (path.includes('/plateforme/calendrier')) return 'calendrier';
-    if (path.includes('/plateforme/notification')) return 'notification';
-    if (path.includes('/plateforme/profil')) return 'profil';
-    if (path.includes('/plateforme/dashboard')) return 'dashboard';
-    if (path.includes('/plateforme/notifications')) return 'notifications';
-    if (path.includes('/plateforme/presentations')) return 'presentations';
-    return 'dashboard';
+        const path = location.pathname;
+        if (path.includes('/plateforme/calendrier')) return 'calendrier';
+        if (path.includes('/plateforme/notification')) return 'notification';
+        if (path.includes('/plateforme/profil')) return 'profil';
+        if (path.includes('/plateforme/dashboard')) return 'dashboard';
+        if (path.includes('/plateforme/notifications')) return 'notifications';
+        if (path.includes('/plateforme/presentations')) return 'presentations';
+        return 'dashboard';
     };
 
     const activeTab = getActiveTab();
 
     const handleNavigation = (route) => {
-    navigate(route);
+        navigate(route);
     };
 
     const handleLogoutClick = () => {
-    setShowLogoutModal(true);
+        setShowLogoutModal(true);
     };
 
     const handleLogoutConfirm = async () => {
-    setIsLoggingOut(true);
-    
-    try {
-        await logout();
-        localStorage.removeItem('token');
-        navigate('/connexion');
-    } catch (error) {
-        console.error('Erreur de déconnexion:', error);
-        localStorage.removeItem('token');
-        navigate('/connexion');
-    } finally {
-        setIsLoggingOut(false);
+        setIsLoggingOut(true);
+        
+        try {
+            await logout();
+            localStorage.removeItem('token');
+            navigate('/connexion');
+        } catch (error) {
+            console.error('Erreur de déconnexion:', error);
+            localStorage.removeItem('token');
+            navigate('/connexion');
+        } finally {
+            setIsLoggingOut(false);
+            setShowLogoutModal(false);
+        }
+    };
+
+    const handleLogoutCancel = () => {
         setShowLogoutModal(false);
-    }
-};
+    };
 
-const handleLogoutCancel = () => {
-    setShowLogoutModal(false);
-};
-
-
-  //profil
-  //Notifications
-  //Calendrier
-  //tableau de bord
     return (
-    <Container>
-        {isMenuOpen && (
-        <Sidebar>
-        <LogoContainer>
-            <FaLeaf />
-            <FaList onClick={onToggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#FFD700' }} />
-            <h2>Presentation</h2>
-        </LogoContainer>
-        <NavItem active={activeTab === 'dashboard'} onClick={() => handleNavigation('/plateforme/dashboard')}>
-            <MdDashboard /> Tableau de bord
-        </NavItem>
+        <Container>
+            {isMenuOpen && (
+                <Sidebar>
+                    <LogoContainer>
+                        <FaLeaf />
+                        <FaList onClick={onToggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#FFD700' }} />
+                        <h2>Presentation</h2>
+                    </LogoContainer>
+                    {/* CORRECTION : utiliser $active */}
+                    <NavItem $active={activeTab === 'dashboard'} onClick={() => handleNavigation('/plateforme/dashboard')}>
+                        <MdDashboard /> Tableau de bord
+                    </NavItem>
 
-        <NavItem active={activeTab === 'calendrier'} onClick={() => handleNavigation('/plateforme/calendrier')}>
-            <FaCalendar /> Calendrier
-        </NavItem>
+                    <NavItem $active={activeTab === 'calendrier'} onClick={() => handleNavigation('/plateforme/calendrier')}>
+                        <FaCalendar /> Calendrier
+                    </NavItem>
 
-        <NavItem active={activeTab === 'notification'} onClick={() => handleNavigation('/plateforme/notification')}>
-            <FaBell /> Notifications
-        </NavItem>
+                    <NavItem $active={activeTab === 'notification'} onClick={() => handleNavigation('/plateforme/notification')}>
+                        <FaBell /> Notifications
+                    </NavItem>
 
-        <NavItem active={activeTab === 'profil'} onClick={() => handleNavigation('/plateforme/profil')}>
-            <FaUser /> Profil
-        </NavItem>
+                    <NavItem $active={activeTab === 'profil'} onClick={() => handleNavigation('/plateforme/profil')}>
+                        <FaUser /> Profil
+                    </NavItem>
 
-        <NavItem active={activeTab === 'presentations'} onClick={() => handleNavigation('/plateforme/presentations')}>
-            <FaList /> Présentations
-        </NavItem>
+                    <NavItem $active={activeTab === 'presentations'} onClick={() => handleNavigation('/plateforme/presentations')}>
+                        <FaList /> Présentations
+                    </NavItem>
 
-        <LogoutButton onClick={handleLogoutClick}>
-            <FaSignOutAlt /> Déconnexion
-        </LogoutButton>
-        </Sidebar>
-        )}
+                    <LogoutButton onClick={handleLogoutClick}>
+                        <FaSignOutAlt /> Déconnexion
+                    </LogoutButton>
+                </Sidebar>
+            )}
 
-        {showLogoutModal && createPortal(
-        <ModalOverlay>
-        <ModalContent>
-            <ModalHeader>
-                <h3>Confirmation de déconnexion</h3>
-            </ModalHeader>
-            <ModalBody>
-                <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
-            </ModalBody>
-            <ModalFooter>
-                <CancelButton onClick={handleLogoutCancel} disabled={isLoggingOut}>
-                Annuler
-                </CancelButton>
-                <ConfirmButton onClick={handleLogoutConfirm} disabled={isLoggingOut}>
-                {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
-                </ConfirmButton>
-            </ModalFooter>
-        </ModalContent>
-        </ModalOverlay>,
-        document.body
-    )}
-    </Container>
+            {showLogoutModal && createPortal(
+                <ModalOverlay>
+                    <ModalContent>
+                        <ModalHeader>
+                            <h3>Confirmation de déconnexion</h3>
+                        </ModalHeader>
+                        <ModalBody>
+                            <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+                        </ModalBody>
+                        <ModalFooter>
+                            <CancelButton onClick={handleLogoutCancel} disabled={isLoggingOut}>
+                                Annuler
+                            </CancelButton>
+                            <ConfirmButton onClick={handleLogoutConfirm} disabled={isLoggingOut}>
+                                {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
+                            </ConfirmButton>
+                        </ModalFooter>
+                    </ModalContent>
+                </ModalOverlay>,
+                document.body
+            )}
+        </Container>
     );
 };
 

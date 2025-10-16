@@ -34,11 +34,12 @@ const NotificationList = styled.ul`
     margin: 0;
 `;
 
+// CORRECTION : utiliser $read et $typeAction au lieu de read et typeAction
 const NotificationItem = styled.li`
-    background: ${props => props.read ? '#f9f9f9' : '#fff'};
-    border: 1px solid ${props => props.read ? '#ddd' : '#FF8C42'};
+    background: ${props => props.$read ? '#f9f9f9' : '#fff'};
+    border: 1px solid ${props => props.$read ? '#ddd' : '#FF8C42'};
     border-left: 4px solid ${props => {
-        switch(props.typeAction) {
+        switch(props.$typeAction) {
             case 'AJOUT': return '#28a745';
             case 'MODIFICATION': return '#FF8C42';
             case 'SUPPRESSION': return '#dc3545';
@@ -52,7 +53,7 @@ const NotificationItem = styled.li`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-weight: ${props => (props.read ? 'normal' : 'bold')};
+    font-weight: ${props => (props.$read ? 'normal' : 'bold')};
     transition: all 0.3s ease;
 
     &:hover {
@@ -61,9 +62,10 @@ const NotificationItem = styled.li`
     }
 `;
 
+// CORRECTION : utiliser $read au lieu de read
 const NotificationText = styled.span`
     flex: 1;
-    color: ${props => props.read ? '#666' : '#333'};
+    color: ${props => props.$read ? '#666' : '#333'};
 `;
 
 const NotificationActions = styled.div`
@@ -79,6 +81,7 @@ const Timestamp = styled.span`
     font-style: italic;
 `;
 
+// CORRECTION : utiliser $danger au lieu de danger
 const ActionButton = styled.button`
     background: none;
     border: none;
@@ -91,11 +94,11 @@ const ActionButton = styled.button`
     justify-content: center;
 
     &:hover {
-        background-color: ${props => props.danger ? '#ffebee' : '#e8f5e9'};
+        background-color: ${props => props.$danger ? '#ffebee' : '#e8f5e9'};
     }
 
     svg {
-        color: ${props => props.danger ? '#dc3545' : '#28a745'};
+        color: ${props => props.$danger ? '#dc3545' : '#28a745'};
         font-size: 1.2rem;
     }
 `;
@@ -110,19 +113,20 @@ const StatsBar = styled.div`
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 `;
 
+// CORRECTION : utiliser $active au lieu de active
 const StatItem = styled.div`
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: ${props => props.active ? '#FF8C42' : '#f0f0f0'};
-    color: ${props => props.active ? 'white' : '#333'};
+    background: ${props => props.$active ? '#FF8C42' : '#f0f0f0'};
+    color: ${props => props.$active ? 'white' : '#333'};
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s;
 
     &:hover {
-        background: ${props => props.active ? '#FF6B1A' : '#e0e0e0'};
+        background: ${props => props.$active ? '#FF6B1A' : '#e0e0e0'};
     }
 `;
 
@@ -239,15 +243,16 @@ const Notification = () => {
                 </Header>
 
                 <StatsBar>
-                    <StatItem active={filter === 'all'} onClick={() => setFilter('all')}>
+                    {/* CORRECTION : utiliser $active */}
+                    <StatItem $active={filter === 'all'} onClick={() => setFilter('all')}>
                         <FaBell />
                         Toutes ({notifications.length})
                     </StatItem>
-                    <StatItem active={filter === 'unread'} onClick={() => setFilter('unread')}>
+                    <StatItem $active={filter === 'unread'} onClick={() => setFilter('unread')}>
                         <FaBell />
                         Non lues ({unreadCount})
                     </StatItem>
-                    <StatItem active={filter === 'read'} onClick={() => setFilter('read')}>
+                    <StatItem $active={filter === 'read'} onClick={() => setFilter('read')}>
                         <FaCheck />
                         Lues ({notifications.length - unreadCount})
                     </StatItem>
@@ -268,10 +273,10 @@ const Notification = () => {
                         {filteredNotifications.map((notif) => (
                             <NotificationItem 
                                 key={notif.idNotification} 
-                                read={notif.lue}
-                                typeAction={notif.notification?.typeAction}
+                                $read={notif.lue}
+                                $typeAction={notif.notification?.typeAction}
                             >
-                                <NotificationText read={notif.lue}>
+                                <NotificationText $read={notif.lue}>
                                     {notif.notification?.message || 'Notification'}
                                 </NotificationText>
                                 <Timestamp>
@@ -288,7 +293,7 @@ const Notification = () => {
                                     )}
                                     <ActionButton 
                                         onClick={() => deleteNotification(notif.idNotification)}
-                                        danger
+                                        $danger
                                         title="Supprimer"
                                     >
                                         <FaTrash />
