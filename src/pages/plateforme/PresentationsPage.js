@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaList, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaEdit, FaTrash, FaPlus, FaDownload, FaStar } from 'react-icons/fa';
 import Barre from './Barre';
@@ -79,31 +80,39 @@ const PresentationCard = styled.div`
 
 const CardActions = styled.div`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   display: flex;
-  gap: 5px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 `;
 
 const ActionButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: 6px;
   color: #666;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
 
   &:hover {
-    background-color: ${props => props.danger ? '#ffebee' : '#f0f0f0'};
-    color: ${props => props.danger ? '#dc3545' : '#FF8C42'};
+    background-color: ${props => props.danger ? '#ffebee' : '#e8f5e8'};
+    color: ${props => props.danger ? '#dc3545' : '#28a745'};
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
 
   svg {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 `;
 
@@ -180,14 +189,15 @@ const EmptyState = styled.div`
 `;
 
 const PresentationsPage = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [filteredPresentations, setFilteredPresentations] = useState([]);
   const [presentations, setPresentations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedPresentation, setSelectedPresentation] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingPresentation, setEditingPresentation] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
   const [formData, setFormData] = useState({
     sujet: '',
     description: '',
@@ -205,7 +215,15 @@ const PresentationsPage = () => {
 
   useEffect(() => {
     loadPresentations();
+    loadCurrentUser();
   }, []);
+
+  const loadCurrentUser = () => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      setCurrentUser({ idUtilisateur: parseInt(userId) });
+    }
+  };
 
   const loadPresentations = async () => {
     try {
@@ -300,8 +318,7 @@ const PresentationsPage = () => {
   };
 
   const openDetails = (presentation) => {
-    setSelectedPresentation(presentation);
-    setShowModal(true);
+    navigate(`/plateforme/detail-presentation/${presentation.idPresentation}`);
   };
 
   const handleEdit = (presentation) => {
@@ -316,7 +333,6 @@ const PresentationsPage = () => {
       fichiers: []
     });
     setShowForm(true);
-    setShowModal(false);
   };
 
   const formatTimeForInput = (timeStr) => {
@@ -335,10 +351,6 @@ const PresentationsPage = () => {
       try {
         await presentationService.deletePresentation(presentation.idPresentation);
         await loadPresentations();
-        if (selectedPresentation && selectedPresentation.idPresentation === presentation.idPresentation) {
-          setShowModal(false);
-          setSelectedPresentation(null);
-        }
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
         alert('Erreur lors de la suppression de la présentation');
@@ -455,14 +467,16 @@ const PresentationsPage = () => {
                           statusColor={getStatusColor(status)}
                           onClick={() => openDetails(presentation)}
                         >
-                          <CardActions>
-                            <ActionButton onClick={(e) => { e.stopPropagation(); handleEdit(presentation); }}>
-                              <FaEdit />
-                            </ActionButton>
-                            <ActionButton danger onClick={(e) => { e.stopPropagation(); handleDelete(presentation); }}>
-                              <FaTrash />
-                            </ActionButton>
-                          </CardActions>
+                          {currentUser && presentation.utilisateur && currentUser.idUtilisateur === presentation.utilisateur.idUtilisateur && (
+                            <CardActions>
+                              <ActionButton onClick={(e) => { e.stopPropagation(); handleEdit(presentation); }}>
+                                <FaEdit />
+                              </ActionButton>
+                              <ActionButton danger onClick={(e) => { e.stopPropagation(); handleDelete(presentation); }}>
+                                <FaTrash />
+                              </ActionButton>
+                            </CardActions>
+                          )}
                           <PresentationTitle>{presentation.sujet}</PresentationTitle>
                           <p style={{ color: '#666', marginBottom: '1rem' }}>{presentation.description}</p>
                           <PresentationInfo>
@@ -509,139 +523,7 @@ const PresentationsPage = () => {
           </>
         )}
 
-        {/* Modal Détails */}
-        {showModal && selectedPresentation && (
-          <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            backgroundColor: 'rgba(0,0,0,0.5)', 
-            zIndex: 1000, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            padding: '20px'
-          }}>
-            <div style={{ 
-              background: 'white', 
-              padding: '2rem', 
-              borderRadius: '12px', 
-              maxWidth: '600px',
-              width: '100%',
-              maxHeight: '90vh', 
-              overflowY: 'auto',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-            }}>
-              <h2 style={{ color: '#FF6B1A', marginBottom: '1.5rem' }}>Détails de la présentation</h2>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#666' }}>Sujet:</strong>
-                <p style={{ marginTop: '0.3rem', fontSize: '1.1rem' }}>{selectedPresentation.sujet}</p>
-              </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#666' }}>Description:</strong>
-                <p style={{ marginTop: '0.3rem' }}>{selectedPresentation.description || 'Aucune description'}</p>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#666' }}>Date:</strong>
-                <p style={{ marginTop: '0.3rem' }}>{formatDate(selectedPresentation.datePresentation)}</p>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#666' }}>Heure:</strong>
-                <p style={{ marginTop: '0.3rem' }}>{formatTime(selectedPresentation.heureDebut)} - {formatTime(selectedPresentation.heureFin)}</p>
-              </div>
-
-              {selectedPresentation.utilisateur && (
-                <>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <strong style={{ color: '#666' }}>Présentateur:</strong>
-                    <p style={{ marginTop: '0.3rem' }}>{selectedPresentation.utilisateur.prenom} {selectedPresentation.utilisateur.nom}</p>
-                  </div>
-
-                  <div style={{ marginBottom: '1rem' }}>
-                    <strong style={{ color: '#666' }}>Département:</strong>
-                    <p style={{ marginTop: '0.3rem' }}>{selectedPresentation.utilisateur.departement}</p>
-                  </div>
-                </>
-              )}
-
-              <div style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#666' }}>Statut:</strong>
-                <p style={{ marginTop: '0.3rem' }}>
-                  <PresentationStatus statusColor={getStatusColor(selectedPresentation.statut)}>
-                    {selectedPresentation.statut}
-                  </PresentationStatus>
-                </p>
-              </div>
-
-              {selectedPresentation.fichier && selectedPresentation.fichier.trim() && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <strong style={{ color: '#666' }}>Fichiers:</strong>
-                  <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                    {selectedPresentation.fichier.split(',').map((file, index) => (
-                      <li key={index} style={{ marginBottom: '0.5rem' }}>
-                        <button
-                          onClick={() => downloadFile(file.trim())}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#FF8C42',
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.3rem'
-                          }}
-                        >
-                          <FaDownload /> {file.trim()}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
-                <button onClick={() => { setShowModal(false); setSelectedPresentation(null); }} style={{ 
-                  padding: '10px 20px', 
-                  backgroundColor: '#6c757d', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}>
-                  Fermer
-                </button>
-                <button onClick={() => handleEdit(selectedPresentation)} style={{ 
-                  padding: '10px 20px', 
-                  backgroundColor: '#FF8C42', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}>
-                  Modifier
-                </button>
-                <button onClick={() => handleDelete(selectedPresentation)} style={{ 
-                  padding: '10px 20px', 
-                  backgroundColor: '#dc3545', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}>
-                  Supprimer
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Modal Formulaire */}
         {showForm && (
@@ -702,12 +584,38 @@ const PresentationsPage = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
                   Date <span style={{ color: 'red' }}>*</span>
                 </label>
-                <input 
-                  type="date" 
-                  value={formData.datePresentation} 
-                  onChange={(e) => setFormData({...formData, datePresentation: e.target.value})} 
+                <input
+                  type="date"
+                  value={formData.datePresentation}
+                  onChange={(e) => setFormData({...formData, datePresentation: e.target.value})}
                   style={inputStyle}
-                  required 
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Heure de début <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="time"
+                  value={formData.heureDebut}
+                  onChange={(e) => setFormData({...formData, heureDebut: e.target.value})}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                  Heure de fin <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="time"
+                  value={formData.heureFin}
+                  onChange={(e) => setFormData({...formData, heureFin: e.target.value})}
+                  style={inputStyle}
+                  required
                 />
               </div>
 

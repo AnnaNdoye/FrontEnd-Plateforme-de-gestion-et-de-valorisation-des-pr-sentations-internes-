@@ -14,6 +14,7 @@ import Calendrier from "./pages/plateforme/Calendrier";
 import Notification from "./pages/plateforme/Notification";
 import Profil from "./pages/plateforme/Profil";
 import PresentationsPage from "./pages/plateforme/PresentationsPage";
+import DetailPresentation from "./pages/plateforme/DetailPresentation";
 import ChangerMotDePasse from "./pages/ChangerMotDePasse";
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
 								<Route path="/plateforme/notification" element={<ProtectedRoute><Notification/></ProtectedRoute>} />
 								<Route path="/plateforme/profil" element={<ProtectedRoute><Profil/></ProtectedRoute>} />
 								<Route path="/plateforme/presentations" element={<ProtectedRoute><PresentationsPage/></ProtectedRoute>} />
+								<Route path="/plateforme/detail-presentation/:id" element={<ProtectedRoute><DetailPresentation/></ProtectedRoute>} />
 								<Route path="/plateforme/departements" element={<ProtectedRoute><DepartementsPage/></ProtectedRoute>} />
 								<Route path="/changer-mot-de-passe" element={<ChangerMotDePasse/>} />
 						</Routes>
@@ -59,3 +61,4 @@ function App() {
 }
 
 export default App;
+
