@@ -24,7 +24,7 @@ const Sidebar = styled.div`
     color: white;
     padding: 2rem 1.5rem;
     box-shadow: 5px 0 25px rgba(0,0,0,0.15);
-    height: 100vh;
+    height: 1000px;
     overflow-y: auto;
     position: relative;
     z-index: 10;
