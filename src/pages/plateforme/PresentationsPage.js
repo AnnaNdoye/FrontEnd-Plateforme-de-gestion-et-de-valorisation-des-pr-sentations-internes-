@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaList, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaEdit, FaTrash, FaPlus, FaDownload, FaStar } from 'react-icons/fa';
+import { FaList, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaEdit, FaTrash, FaPlus, FaStar } from 'react-icons/fa';
 import Barre from './Barre';
 import Recherche from './Recherche';
 import presentationService from '../../services/presentationService';
-import voteService from '../../services/voteService';
-import commentaireService from '../../services/commentaireService';
 
 const Container = styled.div`
   display: flex;

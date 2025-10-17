@@ -37,7 +37,14 @@ class PresentationService {
       formData.append('sujet', presentationData.sujet);
       // CORRECTION : mapper le statut vers le backend
       formData.append('statut', this.mapStatusToBackend(presentationData.statut));
-      
+
+      if (presentationData.heureDebut) {
+        formData.append('heureDebut', presentationData.heureDebut);
+      }
+      if (presentationData.heureFin) {
+        formData.append('heureFin', presentationData.heureFin);
+      }
+
       if (presentationData.description) {
         formData.append('description', presentationData.description);
       }
@@ -147,7 +154,14 @@ class PresentationService {
       formData.append('sujet', presentationData.sujet);
       // CORRECTION : mapper le statut vers le backend
       formData.append('statut', this.mapStatusToBackend(presentationData.statut));
-      
+
+      if (presentationData.heureDebut) {
+        formData.append('heureDebut', presentationData.heureDebut);
+      }
+      if (presentationData.heureFin) {
+        formData.append('heureFin', presentationData.heureFin);
+      }
+
       if (presentationData.description) {
         formData.append('description', presentationData.description);
       }
@@ -213,17 +227,35 @@ class PresentationService {
   formatPresentationsForCalendar(presentations) {
     return presentations.map(presentation => {
       const date = new Date(presentation.datePresentation);
+      let start = date;
+      let end = date;
+      let allDay = true;
+
+      if (presentation.heureDebut && presentation.heureFin) {
+        const [startHour, startMinute] = presentation.heureDebut.split(':').map(Number);
+        const [endHour, endMinute] = presentation.heureFin.split(':').map(Number);
+
+        start = new Date(date);
+        start.setHours(startHour, startMinute, 0, 0);
+
+        end = new Date(date);
+        end.setHours(endHour, endMinute, 0, 0);
+
+        allDay = false;
+      }
 
       return {
         id: presentation.idPresentation,
         title: presentation.sujet,
-        start: date,
-        end: date,
-        allDay: true,
+        start: start,
+        end: end,
+        allDay: allDay,
         description: presentation.description,
         status: presentation.statut,
         subject: presentation.sujet,
         datePresentation: presentation.datePresentation,
+        heureDebut: presentation.heureDebut,
+        heureFin: presentation.heureFin,
         statut: presentation.statut,
         utilisateur: presentation.utilisateur,
         fichier: presentation.fichier

@@ -180,6 +180,7 @@ const VotesSection = styled.div`
   background: white;
   border-radius: 8px;
   padding: 2rem;
+  margin-bottom: 2rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   border-left: 4px solid #007bff;
 `;
@@ -209,6 +210,69 @@ const VoteRating = styled.div`
   font-weight: bold;
 `;
 
+const AddCommentSection = styled.div`
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #FFE5CC;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: #FF8C42;
+  }
+`;
+
+const AddVoteSection = styled.div`
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+`;
+
+const StarRating = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+`;
+
+const Star = styled(FaStar)`
+  font-size: 2rem;
+  cursor: pointer;
+  color: ${props => props.$filled ? '#FFD700' : '#ddd'};
+  transition: all 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const Button = styled.button`
+  padding: 0.75rem 1.5rem;
+  background: ${props => props.disabled ? '#ccc' : '#FF8C42'};
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: background 0.3s;
+
+  &:hover:not(:disabled) {
+    background: #FF6B1A;
+  }
+`;
+
 const Loading = styled.div`
   text-align: center;
   padding: 3rem;
@@ -233,6 +297,10 @@ const DetailPresentation = () => {
   const [votes, setVotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [newComment, setNewComment] = useState('');
+  const [newVote, setNewVote] = useState(0);
+  const [isAddingComment, setIsAddingComment] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -247,23 +315,58 @@ const DetailPresentation = () => {
       setLoading(true);
       setError(null);
 
-      // Load presentation details
       const presentationData = await presentationService.getPresentationById(parseInt(id));
       setPresentation(presentationData);
 
-      // Load comments
       const commentsData = await commentaireService.getCommentairesByPresentation(parseInt(id));
       setComments(commentsData);
 
-      // Load votes
       const votesData = await voteService.getVotesByPresentation(parseInt(id));
       setVotes(votesData);
 
     } catch (err) {
-      console.error('Erreur lors du chargement des détails:', err);
-      setError('Erreur lors du chargement des détails de la présentation');
+      console.error('Erreur:', err);
+      setError('Erreur lors du chargement des détails');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) {
+      alert('Veuillez saisir un commentaire');
+      return;
+    }
+
+    try {
+      setIsAddingComment(true);
+      await commentaireService.addCommentaire(parseInt(id), newComment);
+      setNewComment('');
+      await loadPresentationDetails();
+    } catch (err) {
+      console.error('Erreur:', err);
+      alert('Erreur lors de l\'ajout du commentaire');
+    } finally {
+      setIsAddingComment(false);
+    }
+  };
+
+  const handleAddVote = async () => {
+    if (newVote < 1 || newVote > 5) {
+      alert('Veuillez choisir une note entre 1 et 5');
+      return;
+    }
+
+    try {
+      setIsVoting(true);
+      await voteService.addOrUpdateVote(parseInt(id), newVote);
+      setNewVote(0);
+      await loadPresentationDetails();
+    } catch (err) {
+      console.error('Erreur:', err);
+      alert('Erreur lors du vote');
+    } finally {
+      setIsVoting(false);
     }
   };
 
@@ -280,19 +383,13 @@ const DetailPresentation = () => {
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return date.toLocaleDateString('fr-FR');
   };
 
   const formatTime = (timeStr) => {
     if (!timeStr) return '';
     const date = new Date(timeStr);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
+    return date.toLocaleTimeString('fr-FR');
   };
 
   const downloadFile = (fileName) => {
@@ -304,7 +401,7 @@ const DetailPresentation = () => {
       <Container>
         {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
         <Content>
-          <Loading>Chargement des détails de la présentation...</Loading>
+          <Loading>Chargement...</Loading>
         </Content>
       </Container>
     );
@@ -319,7 +416,7 @@ const DetailPresentation = () => {
             <BackButton onClick={() => navigate('/plateforme/presentations')}>
               <FaArrowLeft /> Retour
             </BackButton>
-            <h1>Détails de la présentation</h1>
+            <h1>Détails</h1>
             <div></div>
           </Header>
           <Error>{error}</Error>
@@ -340,10 +437,9 @@ const DetailPresentation = () => {
           <div></div>
         </Header>
 
-        {/* Presentation Details Section */}
         <PresentationSection>
           <SectionTitle>
-            <FaFileAlt /> Détails de la présentation
+            <FaFileAlt /> Informations
           </SectionTitle>
 
           <PresentationInfo>
@@ -362,7 +458,7 @@ const DetailPresentation = () => {
             </InfoCard>
 
             <InfoCard color="#007bff">
-              <InfoLabel>Date</InfoLabel>
+              <InfoLabel>Date de début</InfoLabel>
               <InfoValue>
                 <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
                 {formatDate(presentation.datePresentation)}
@@ -371,27 +467,28 @@ const DetailPresentation = () => {
 
             {(presentation.heureDebut || presentation.heureFin) && (
               <InfoCard color="#6f42c1">
-                <InfoLabel>Heure</InfoLabel>
+                <InfoLabel>Horaires</InfoLabel>
                 <InfoValue>
                   <FaClock style={{ marginRight: '0.5rem' }} />
-                  {presentation.heureDebut ? formatTime(presentation.heureDebut) : ''} - {presentation.heureFin ? formatTime(presentation.heureFin) : ''}
+                  {presentation.heureDebut ? formatTime(presentation.heureDebut) : ''} - 
+                  {presentation.heureFin ? formatTime(presentation.heureFin) : ''}
                 </InfoValue>
               </InfoCard>
             )}
 
-            {presentation.utilisateur && (
+            {presentation.prenomUtilisateur && presentation.nomUtilisateur && (
               <>
                 <InfoCard color="#fd7e14">
                   <InfoLabel>Présentateur</InfoLabel>
                   <InfoValue>
                     <FaUser style={{ marginRight: '0.5rem' }} />
-                    {presentation.utilisateur.prenom} {presentation.utilisateur.nom}
+                    {presentation.prenomUtilisateur} {presentation.nomUtilisateur}
                   </InfoValue>
                 </InfoCard>
 
                 <InfoCard color="#20c997">
                   <InfoLabel>Département</InfoLabel>
-                  <InfoValue>{presentation.utilisateur.departement}</InfoValue>
+                  <InfoValue>{presentation.departementUtilisateur}</InfoValue>
                 </InfoCard>
               </>
             )}
@@ -425,7 +522,6 @@ const DetailPresentation = () => {
           )}
         </PresentationSection>
 
-        {/* Comments Section */}
         <CommentsSection>
           <SectionTitle>
             <FaComment /> Commentaires ({comments.length})
@@ -433,14 +529,14 @@ const DetailPresentation = () => {
 
           {comments.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
-              Aucun commentaire pour le moment
+              Aucun commentaire
             </div>
           ) : (
             comments.map(comment => (
               <CommentItem key={comment.idCommentaire}>
                 <CommentHeader>
                   <CommentAuthor>
-                    {comment.utilisateur ? `${comment.utilisateur.prenom} ${comment.utilisateur.nom}` : 'Utilisateur inconnu'}
+                    {comment.utilisateur ? `${comment.utilisateur.prenom} ${comment.utilisateur.nom}` : 'Utilisateur'}
                   </CommentAuthor>
                   <CommentDate>
                     {comment.dateCommentaire ? formatDate(comment.dateCommentaire) : ''}
@@ -450,9 +546,25 @@ const DetailPresentation = () => {
               </CommentItem>
             ))
           )}
+
+          <AddCommentSection>
+            <InfoLabel>Ajouter un commentaire</InfoLabel>
+            <TextArea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Votre commentaire..."
+              disabled={isAddingComment}
+            />
+            <Button
+              onClick={handleAddComment}
+              disabled={isAddingComment}
+              style={{ marginTop: '1rem' }}
+            >
+              {isAddingComment ? 'Envoi...' : 'Publier'}
+            </Button>
+          </AddCommentSection>
         </CommentsSection>
 
-        {/* Votes Section */}
         <VotesSection>
           <SectionTitle>
             <FaStar /> Votes ({votes.length})
@@ -460,7 +572,7 @@ const DetailPresentation = () => {
 
           {votes.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
-              Aucun vote pour le moment
+              Aucun vote
             </div>
           ) : (
             votes.map(vote => (
@@ -468,7 +580,7 @@ const DetailPresentation = () => {
                 <VoteInfo>
                   <FaUser style={{ color: '#FF6B1A' }} />
                   <span style={{ fontWeight: 'bold', color: '#FF6B1A' }}>
-                    {vote.utilisateur ? `${vote.utilisateur.prenom} ${vote.utilisateur.nom}` : 'Utilisateur inconnu'}
+                    {vote.utilisateur ? `${vote.utilisateur.prenom} ${vote.utilisateur.nom}` : 'Utilisateur'}
                   </span>
                 </VoteInfo>
                 <VoteRating>
@@ -478,6 +590,25 @@ const DetailPresentation = () => {
               </VoteItem>
             ))
           )}
+
+          <AddVoteSection>
+            <InfoLabel>Voter pour cette présentation</InfoLabel>
+            <StarRating>
+              {[1, 2, 3, 4, 5].map(star => (
+                <Star
+                  key={star}
+                  $filled={star <= newVote}
+                  onClick={() => setNewVote(star)}
+                />
+              ))}
+            </StarRating>
+            <Button
+              onClick={handleAddVote}
+              disabled={isVoting || newVote === 0}
+            >
+              {isVoting ? 'Envoi...' : 'Voter'}
+            </Button>
+          </AddVoteSection>
         </VotesSection>
       </Content>
     </Container>

@@ -49,6 +49,8 @@ const Calendrier = () => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({
     datePresentation: '',
+    heureDebut: '',
+    heureFin: '',
     sujet: '',
     description: '',
     statut: 'Planifié',
@@ -96,6 +98,8 @@ const Calendrier = () => {
 
     setEventForm({
       datePresentation: dateStr,
+      heureDebut: '',
+      heureFin: '',
       sujet: '',
       description: '',
       statut: 'Planifié',
@@ -107,11 +111,15 @@ const Calendrier = () => {
 
   const handleSelectEvent = useCallback((event) => {
     setSelectedEvent(event);
-    
+
     const datePresentation = event.start ? format(event.start, 'yyyy-MM-dd') : '';
-    
+    const heureDebut = event.heureDebut ? event.heureDebut.toString() : '';
+    const heureFin = event.heureFin ? event.heureFin.toString() : '';
+
     setEventForm({
       datePresentation,
+      heureDebut,
+      heureFin,
       sujet: event.subject || event.title || '',
       description: event.description || '',
       statut: event.status || event.statut || 'Planifié',
@@ -121,8 +129,8 @@ const Calendrier = () => {
   }, []);
 
   const handleSaveEvent = async () => {
-    const { datePresentation, sujet, description, statut, fichiers } = eventForm;
-    
+    const { datePresentation, heureDebut, heureFin, sujet, description, statut, fichiers } = eventForm;
+
     if (!datePresentation || !sujet || !statut || !userId) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
@@ -133,6 +141,8 @@ const Calendrier = () => {
 
       const presentationData = {
         datePresentation,
+        heureDebut,
+        heureFin,
         sujet,
         description,
         statut
@@ -150,6 +160,8 @@ const Calendrier = () => {
       setSelectedEvent(null);
       setEventForm({
         datePresentation: '',
+        heureDebut: '',
+        heureFin: '',
         sujet: '',
         description: '',
         statut: 'Planifié',
@@ -174,6 +186,8 @@ const Calendrier = () => {
         setSelectedEvent(null);
         setEventForm({
           datePresentation: '',
+          heureDebut: '',
+          heureFin: '',
           sujet: '',
           description: '',
           statut: 'Planifié',
@@ -193,6 +207,8 @@ const Calendrier = () => {
     setSelectedEvent(null);
     setEventForm({
       datePresentation: '',
+      heureDebut: '',
+      heureFin: '',
       sujet: '',
       description: '',
       statut: 'Planifié',
@@ -413,6 +429,31 @@ const Calendrier = () => {
                   style={inputStyle}
                   required
                 />
+              </div>
+
+              <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                    Heure de début
+                  </label>
+                  <input
+                    type="time"
+                    value={eventForm.heureDebut}
+                    onChange={(e) => setEventForm({ ...eventForm, heureDebut: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#FF6B1A' }}>
+                    Heure de fin
+                  </label>
+                  <input
+                    type="time"
+                    value={eventForm.heureFin}
+                    onChange={(e) => setEventForm({ ...eventForm, heureFin: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
               </div>
 
               <div style={{ marginBottom: '15px' }}>

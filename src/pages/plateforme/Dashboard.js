@@ -154,35 +154,7 @@ const SectionTitle = styled.h2`
   gap: 0.5rem;
 `;
 
-const UpcomingList = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-`;
 
-const UpcomingItem = styled.div`
-  padding: 1rem;
-  border-left: 4px solid ${props => props.color || '#FF8C42'};
-  background: #f9f9f9;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    color: #333;
-  }
-
-  p {
-    margin: 0.2rem 0;
-    color: #666;
-    font-size: 0.9rem;
-  }
-`;
 
 const Dashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
@@ -220,15 +192,7 @@ const Dashboard = () => {
     { icon: <FaList />, title: 'Présentations', path: '/plateforme/presentations', description: 'Gérer mes présentations' },
   ];
 
-  const getStatusColor = (status) => {
-    const colors = {
-      'planifiees': '#FF8C42',
-      'confirmees': '#28a745',
-      'terminees': '#007bff',
-      'annulees': '#dc3545'
-    };
-    return colors[status] || '#FF8C42';
-  };
+
 
   return (
     <Container>
@@ -309,42 +273,6 @@ const Dashboard = () => {
                 </StatInfo>
               </StatCard>
             </StatsGrid>
-
-            <SectionTitle>
-              <FaCalendarAlt /> Présentations à venir ({stats.upcomingCount || 0})
-            </SectionTitle>
-
-            {stats.upcomingPresentations && stats.upcomingPresentations.length > 0 ? (
-              <UpcomingList>
-                {stats.upcomingPresentations.slice(0, 5).map((pres, index) => (
-                  <UpcomingItem key={index} color={getStatusColor(pres.statut?.toLowerCase())}>
-                    <h4>{pres.sujet}</h4>
-                    <p><strong>Date :</strong> {(() => {
-                      const date = new Date(pres.datePresentation);
-                      const year = date.getFullYear();
-                      const month = String(date.getMonth() + 1).padStart(2, '0');
-                      const day = String(date.getDate()).padStart(2, '0');
-                      return `${year}-${month}-${day}`;
-                    })()}</p>
-                    <p><strong>Présentateur :</strong> {pres.utilisateur?.prenom} {pres.utilisateur?.nom} ({pres.utilisateur?.departement})</p>
-                    <p><strong>Statut :</strong> <span style={{ 
-                      padding: '0.2rem 0.5rem', 
-                      borderRadius: '4px', 
-                      backgroundColor: getStatusColor(pres.statut?.toLowerCase()),
-                      color: 'white',
-                      fontSize: '0.85rem',
-                      fontWeight: 'bold'
-                    }}>{pres.statut}</span></p>
-                  </UpcomingItem>
-                ))}
-              </UpcomingList>
-            ) : (
-              <UpcomingList>
-                <p style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
-                  Aucune présentation à venir dans les 30 prochains jours
-                </p>
-              </UpcomingList>
-            )}
 
             <SectionTitle>
               <FaChartBar /> Actions rapides

@@ -77,12 +77,7 @@ const NotificationActions = styled.div`
     align-items: center;
 `;
 
-const Timestamp = styled.span`
-    font-size: 0.8rem;
-    color: #666;
-    margin-left: 1rem;
-    font-style: italic;
-`;
+
 
 // CORRECTION : utiliser $danger au lieu de danger
 const ActionButton = styled.button`
@@ -207,18 +202,7 @@ const Notification = () => {
         }
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Date invalide';
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    };
+
 
     const filteredNotifications = notifications.filter(notif => {
         if (filter === 'unread') return !notif.lue;
@@ -280,9 +264,6 @@ const Notification = () => {
                                 <NotificationText $read={notif.lue}>
                                     {notif.notification?.message || 'Notification'}
                                 </NotificationText>
-                                <Timestamp>
-                                    {formatDate(notif.notification?.dateDeReception)}
-                                </Timestamp>
                                 <NotificationActions>
                                     {!notif.lue && (
                                         <ActionButton 
