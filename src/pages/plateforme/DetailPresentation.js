@@ -389,8 +389,32 @@ const DetailPresentation = () => {
 
   const formatTime = (timeStr) => {
     if (!timeStr) return '';
-    const date = new Date(timeStr);
-    return date.toLocaleTimeString('fr-FR');
+
+    // Handle numeric times (floats like 15.0)
+    const num = parseFloat(timeStr);
+    if (!isNaN(num)) {
+      const hours = Math.floor(num);
+      const minutes = Math.round((num - hours) * 60);
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    }
+
+    // Gérer les formats d'heure LocalTime du backend (ex: "10:00:00", "14:30", "9:5")
+    if (typeof timeStr === 'string' && timeStr.includes(':')) {
+      const parts = timeStr.split(':');
+      if (parts.length >= 2) {
+        const hours = parseInt(parts[0], 10);
+        const minutes = parseInt(parts[1], 10);
+        // Formater explicitement en hh:mm avec zéros de remplissage
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      }
+    }
+    // Si c'est un objet LocalTime, le convertir en string hh:mm
+    if (timeStr && typeof timeStr === 'object' && timeStr.hour !== undefined && timeStr.minute !== undefined) {
+      const hours = timeStr.hour.toString().padStart(2, '0');
+      const minutes = timeStr.minute.toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    return timeStr;
   };
 
   const downloadFile = (fileName) => {
@@ -543,9 +567,6 @@ const DetailPresentation = () => {
                   <CommentAuthor>
                     {comment.utilisateur ? `${comment.utilisateur.prenom} ${comment.utilisateur.nom}` : 'Utilisateur'}
                   </CommentAuthor>
-                  <CommentDate>
-                    {comment.dateCommentaire ? formatDate(comment.dateCommentaire) : ''}
-                  </CommentDate>
                 </CommentHeader>
                 <CommentContent>{comment.contenu}</CommentContent>
               </CommentItem>

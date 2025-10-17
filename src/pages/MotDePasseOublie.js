@@ -281,29 +281,14 @@ const MotDePasseOublie = () => {
     <Container>
       <BackButton onClick={() => navigate('/connexion')}>
         <FaArrowLeft />
-        Retour à la connexion
+        Retour
       </BackButton>
 
       <Form onSubmit={handleSubmit}>
         <Title>Mot de passe oublié ?</Title>
         <Subtitle>
-          Pas de problème ! Saisissez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+          Pas de problème ! Saisissez votre adresse email.
         </Subtitle>
-
-        <Steps>
-          <Step>
-            <StepNumber>1</StepNumber>
-            <div>Saisissez votre adresse email</div>
-          </Step>
-          <Step>
-            <StepNumber>2</StepNumber>
-            <div>Vérifiez votre boîte de réception</div>
-          </Step>
-          <Step>
-            <StepNumber>3</StepNumber>
-            <div>Cliquez sur le lien pour réinitialiser</div>
-          </Step>
-        </Steps>
 
         <InputGroup>
           <Label>Adresse e-mail <span style={{ color: 'red' }}>*</span></Label>
@@ -331,7 +316,7 @@ const MotDePasseOublie = () => {
         </InputGroup>
 
         <SubmitButton type="submit" disabled={isLoading || !email.trim()}>
-          {isLoading ? 'Envoi en cours...' : 'Envoyer le lien de réinitialisation'}
+          {isLoading ? 'Envoi en cours...' : 'Envoyer '}
         </SubmitButton>
 
         {message && (

@@ -220,8 +220,6 @@ const Inscription = () => {
 
     const departements = [
         { value: 'SICO', label: 'SICO' },
-        { value: 'IT', label: 'IT' },
-        { value: 'DATA', label: 'DATA' },
         { value: 'RH', label: 'Ressources Humaines' },
         { value: 'FINANCE', label: 'Finance' },
         { value: 'MARKETING', label: 'Marketing' },
@@ -239,8 +237,8 @@ const Inscription = () => {
         setError('');
         setSuccess('');
 
-        if (motDePasse.length < 6) {
-            setError('Le mot de passe doit contenir au moins 6 caractères');
+        if (motDePasse.length < 8) {
+            setError('Le mot de passe doit contenir au moins 8 caractères');
             return;
         }
 
@@ -406,7 +404,7 @@ const Inscription = () => {
                             {montrerMotDePasse ? <FaEyeSlash /> : <FaEye />}
                         </TogglePasswordButton>
                     </InputWrapper>
-                    <PasswordHelp>Minimum 6 caractères</PasswordHelp>
+                    <PasswordHelp>Minimum 8 caractères</PasswordHelp>
                 </InputGroup>
 
                 <SubmitButton type="submit" disabled={isLoading}>
