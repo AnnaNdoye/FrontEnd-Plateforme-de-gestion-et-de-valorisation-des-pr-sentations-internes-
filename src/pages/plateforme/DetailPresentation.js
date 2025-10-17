@@ -21,6 +21,7 @@ const Content = styled.div`
   background-color: rgba(255, 248, 240, 0.8);
   border-radius: 12px;
   margin: 1rem;
+  margin-left: ${props => props.$isMenuOpen ? '300px' : '1rem'};
   box-shadow: 0 4px 20px rgba(255, 140, 66, 0.1);
 `;
 
@@ -411,7 +412,7 @@ const DetailPresentation = () => {
     return (
       <Container>
         {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-        <Content>
+        <Content $isMenuOpen={isMenuOpen}>
           <Header>
             <BackButton onClick={() => navigate('/plateforme/presentations')}>
               <FaArrowLeft /> Retour
@@ -428,7 +429,7 @@ const DetailPresentation = () => {
   return (
     <Container>
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-      <Content>
+      <Content $isMenuOpen={isMenuOpen}>
         <Header>
           <BackButton onClick={() => navigate('/plateforme/presentations')}>
             <FaArrowLeft /> Retour aux présentations
@@ -465,16 +466,20 @@ const DetailPresentation = () => {
               </InfoValue>
             </InfoCard>
 
-            {(presentation.heureDebut || presentation.heureFin) && (
-              <InfoCard color="#6f42c1">
-                <InfoLabel>Horaires</InfoLabel>
-                <InfoValue>
-                  <FaClock style={{ marginRight: '0.5rem' }} />
-                  {presentation.heureDebut ? formatTime(presentation.heureDebut) : ''} - 
-                  {presentation.heureFin ? formatTime(presentation.heureFin) : ''}
-                </InfoValue>
-              </InfoCard>
-            )}
+            <InfoCard color="#6f42c1">
+              <InfoLabel>Horaires</InfoLabel>
+              <InfoValue>
+                <FaClock style={{ marginRight: '0.5rem' }} />
+                {presentation.heureDebut && presentation.heureFin
+                  ? `${formatTime(presentation.heureDebut)} - ${formatTime(presentation.heureFin)}`
+                  : presentation.heureDebut
+                  ? `Début: ${formatTime(presentation.heureDebut)}`
+                  : presentation.heureFin
+                  ? `Fin: ${formatTime(presentation.heureFin)}`
+                  : 'Non spécifié'
+                }
+              </InfoValue>
+            </InfoCard>
 
             {presentation.prenomUtilisateur && presentation.nomUtilisateur && (
               <>

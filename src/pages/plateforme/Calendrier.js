@@ -266,35 +266,27 @@ const Calendrier = () => {
       </div>
     );
   };
-
   const CustomEvent = ({ event }) => {
-    // Get the title and status with null checks
+    // Get the title with null checks
     const title = event.title || event.subject || event.sujet || 'Sans titre';
-    const status = event.status || event.statut || 'Inconnu';
 
-    // Format the display text as "Title - Status"
-    const displayText = `${title} - ${status}`;
-
-    console.log('CustomEvent rendering:', { event, title, status, displayText });
+    console.log('CustomEvent rendering:', { event, title });
 
     return (
       <div style={{
-        fontSize: '11px',
+        fontSize: '12px',
         fontWeight: 'bold',
         color: 'white',
         padding: '3px 5px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        maxWidth: '100%',
-        textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+        textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
         borderRadius: '3px',
-        backgroundColor: 'rgba(0,0,0,0.3)',
         minHeight: '20px',
         display: 'flex',
         alignItems: 'center'
       }}>
-        {displayText}
+        {title}
       </div>
     );
   };

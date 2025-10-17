@@ -307,16 +307,16 @@ const Barre = ({ isMenuOpen, onToggleMenu }) => {
                         <FaCalendar /> Calendrier
                     </NavItem>
 
+                    <NavItem $active={activeTab === 'presentations'} onClick={() => handleNavigation('/plateforme/presentations')}>
+                        <FaList /> Présentations
+                    </NavItem>
+
                     <NavItem $active={activeTab === 'notification'} onClick={() => handleNavigation('/plateforme/notification')}>
                         <FaBell /> Notifications
                     </NavItem>
 
                     <NavItem $active={activeTab === 'profil'} onClick={() => handleNavigation('/plateforme/profil')}>
                         <FaUser /> Profil
-                    </NavItem>
-
-                    <NavItem $active={activeTab === 'presentations'} onClick={() => handleNavigation('/plateforme/presentations')}>
-                        <FaList /> Présentations
                     </NavItem>
 
                     <LogoutButton onClick={handleLogoutClick}>
