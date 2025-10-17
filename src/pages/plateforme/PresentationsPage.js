@@ -20,6 +20,7 @@ const Content = styled.div`
   background-color: rgba(255, 248, 240, 0.8);
   border-radius: 12px;
   margin: 1rem;
+  margin-left: ${props => props.$isMenuOpen ? '281px' : '1rem'};
   box-shadow: 0 4px 20px rgba(255, 140, 66, 0.1);
 `;
 
@@ -421,7 +422,7 @@ const PresentationsPage = () => {
   return (
     <Container>
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-      <Content>
+      <Content $isMenuOpen={isMenuOpen}>
         <Header>
           <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
           <h1>Présentations</h1>

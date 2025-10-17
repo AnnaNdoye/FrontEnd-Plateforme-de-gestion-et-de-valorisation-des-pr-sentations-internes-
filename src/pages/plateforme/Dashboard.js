@@ -16,6 +16,7 @@ const Content = styled.div`
   padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
+  margin-left: ${props => props.$isMenuOpen ? '280px' : '0'};
 `;
 
 const Header = styled.div`
@@ -197,7 +198,7 @@ const Dashboard = () => {
   return (
     <Container>
       <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />
-      <Content>
+      <Content $isMenuOpen={isMenuOpen}>
         <Header>
           <WelcomeText>
             <h1>Bienvenue, {userName} !</h1>

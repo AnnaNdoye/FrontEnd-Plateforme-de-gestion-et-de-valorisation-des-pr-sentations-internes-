@@ -397,10 +397,10 @@ const DetailPresentation = () => {
   };
 
   if (loading) {
-    return (
-      <Container>
-        {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-        <Content>
+  return (
+    <Container>
+      {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
+      <Content $isMenuOpen={isMenuOpen}>
           <Loading>Chargement...</Loading>
         </Content>
       </Container>

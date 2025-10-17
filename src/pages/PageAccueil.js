@@ -41,7 +41,7 @@ const PageAccueil = () => {
         fontWeight: '700',
         textShadow: '1px 1px 3px rgba(0,0,0,0.2)'
       }}>
-        Bienvenue sur la Page d'Accueil
+        Bienvenue sur la plateforme de gestion de présentations !
       </h1>
       
       <p style={{ 

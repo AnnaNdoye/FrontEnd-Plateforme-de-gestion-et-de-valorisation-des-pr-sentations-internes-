@@ -15,6 +15,7 @@ const Content = styled.div`
     padding: 1rem 2rem;
     display: flex;
     flex-direction: column;
+    margin-left: ${props => props.$isMenuOpen ? '280px' : '0'};
 `;
 
 const Header = styled.div`
@@ -213,7 +214,7 @@ const Notification = () => {
     return (
         <Container>
             {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-            <Content>
+      <Content $isMenuOpen={isMenuOpen}>
                 <Header>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />

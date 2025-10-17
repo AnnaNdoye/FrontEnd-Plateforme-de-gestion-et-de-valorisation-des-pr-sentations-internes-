@@ -26,7 +26,9 @@ const Sidebar = styled.div`
     box-shadow: 5px 0 25px rgba(0,0,0,0.15);
     height: 100vh;
     overflow-y: auto;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
     z-index: 10;
 
     &::-webkit-scrollbar {
@@ -58,6 +60,7 @@ const LogoContainer = styled.div`
     gap: 0.8rem;
     margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
+    border-raduis: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     position: sticky;
     top: 0;

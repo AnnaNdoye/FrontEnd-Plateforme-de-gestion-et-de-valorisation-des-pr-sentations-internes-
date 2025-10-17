@@ -19,7 +19,8 @@ const Content = styled.div`
   padding: 2rem 4rem;
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
+  margin-left: ${props => props.$isMenuOpen ? '280px' : 'auto'};
+  margin-right: auto;
 `;
 
 const Header = styled.div`
@@ -319,7 +320,7 @@ const Profil = () => {
   return (
     <Container>
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-      <Content>
+      <Content $isMenuOpen={isMenuOpen}>
         <Header>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />

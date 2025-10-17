@@ -19,6 +19,7 @@ const Content = styled.div`
   padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
+  margin-left: ${props => props.$isMenuOpen ? '280px' : '0'};
 `;
 
 const Header = styled.div`
@@ -83,7 +84,9 @@ const Calendrier = () => {
       setUserId(parseInt(userIdFromStorage));
 
       const presentations = await presentationService.getMyPresentations();
+      console.log('Presentations loaded:', presentations);
       const formattedEvents = presentationService.formatPresentationsForCalendar(presentations);
+      console.log('Formatted events:', formattedEvents);
       setEvents(formattedEvents);
     } catch (error) {
       console.error('Erreur lors du chargement des présentations:', error);
@@ -264,6 +267,38 @@ const Calendrier = () => {
     );
   };
 
+  const CustomEvent = ({ event }) => {
+    // Get the title and status with null checks
+    const title = event.title || event.subject || event.sujet || 'Sans titre';
+    const status = event.status || event.statut || 'Inconnu';
+
+    // Format the display text as "Title - Status"
+    const displayText = `${title} - ${status}`;
+
+    console.log('CustomEvent rendering:', { event, title, status, displayText });
+
+    return (
+      <div style={{
+        fontSize: '11px',
+        fontWeight: 'bold',
+        color: 'white',
+        padding: '3px 5px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        maxWidth: '100%',
+        textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
+        borderRadius: '3px',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        minHeight: '20px',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        {displayText}
+      </div>
+    );
+  };
+
   const buttonStyle = {
     padding: '8px 12px',
     backgroundColor: '#FF8C42',
@@ -306,7 +341,7 @@ const Calendrier = () => {
   return (
     <Container>
       {isMenuOpen && <Barre isMenuOpen={isMenuOpen} onToggleMenu={toggleMenu} />}
-      <Content>
+      <Content $isMenuOpen={isMenuOpen}>
         <Header>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <FaList onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem' }} />
@@ -352,6 +387,7 @@ const Calendrier = () => {
               culture="fr"
               components={{
                 toolbar: CustomToolbar,
+                event: CustomEvent,
               }}
               eventPropGetter={(event) => ({
                 style: {
